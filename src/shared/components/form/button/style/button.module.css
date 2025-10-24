@@ -1,0 +1,36 @@
+.button {
+    padding: 12px 25px;
+    color: white;
+    background-color: var(--color-accent1);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    border-radius: 8px;
+    user-select: none;
+
+    &:hover {
+        background-color: var(--color-accent2);
+    }
+    &:disabled {
+        background-color: var(--color-light-grey);
+        color: var(--color-dark-grey);
+        pointer-events: none;
+    }
+
+    &.outline {
+        border: 2px solid var(--color-accent1);
+        color: var(--color-accent1);
+        background-color: transparent;
+        &:hover {
+            border-color: var(--color-accent2);
+            color: var(--color-accent2);
+        }
+        &:disabled {
+            border-color: var(--color-dark-grey);
+            color: var(--color-dark-grey);
+        }
+    }
+}

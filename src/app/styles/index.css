@@ -1,3 +1,10 @@
+@import "tailwindcss";
+
+#root{
+  height: 100%;
+  width: 100%;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -6,6 +13,18 @@
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+
+  --color-background: rgb(243, 239, 237);
+  --color-background2: #FFE7DB;
+  --color-accent1: rgba(173, 15, 19, 1);
+  --color-accent2: rgba(215, 96, 71, 1);
+  --color-light-grey: rgba(179, 179, 179, 1);
+  --color-dark-grey: rgba(126, 126, 126, 1);
+  --color-neutral: rgba(255, 255, 255, 1);
+  --color-text-dark: rgba(26, 24, 28, 1);
+  --color-error: #FFA8A8;
+
+  --transition-fast: 150ms cubic-bezier(.2,.8,.2,1);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -26,8 +45,9 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-background);
 }
 
 h1 {

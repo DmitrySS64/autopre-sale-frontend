@@ -2,6 +2,8 @@ import {createRouter, createRootRoute, createRoute, Outlet} from "@tanstack/reac
 import {
     createMainPageRoute
 } from "@pages/main_page";
+import {Sidebar} from "@widgets/sidebar/component";
+import {createTestPageRoute} from "@pages/test_page/route";
 
 const rootRoute = createRootRoute({
     component: () => <Outlet/>
@@ -11,15 +13,18 @@ const sidebarRoute = createRoute({
     id: 'app',
     getParentRoute: () => rootRoute,
     component: () => (
-        <>
+        <div className={'w-full h-full flex'}>
+            <Sidebar/>
             <Outlet/>
-        </>
+        </div>
     )
 });
 
 const routeTree = rootRoute.addChildren([
     createMainPageRoute(rootRoute),
-    sidebarRoute.addChildren([])
+    sidebarRoute.addChildren([
+        createTestPageRoute(sidebarRoute)
+    ])
 ])
 
 const router = createRouter({

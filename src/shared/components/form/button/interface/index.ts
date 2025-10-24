@@ -4,8 +4,6 @@ import {buttonVariants} from "@shared/components/form/button/style";
 
 interface IButtonProps
     extends ComponentProps<'button'>,
-        VariantProps<typeof buttonVariants>{
-
-}
+        VariantProps<typeof buttonVariants>{}
 
 export type {IButtonProps}

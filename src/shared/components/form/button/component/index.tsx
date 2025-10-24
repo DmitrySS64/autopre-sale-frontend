@@ -5,11 +5,12 @@ import {cn} from "@shared/lib/cn";
 const Button = ({
                     className,
                     children,
+                    outline,
                     ...props
-                }): IButtonProps => {
+                }: IButtonProps) => {
     return(
         <button
-            className={cn(buttonVariants(), className)}
+            className={cn(buttonVariants({outline}), className)}
             {...props}
         >
             {children}

@@ -1,20 +1,16 @@
 import {cva} from "class-variance-authority";
+import style from './button.module.css'
 
 export const buttonVariants = cva(
-    '',
+    style.button,
     {
         variants: {
-            variant: {
-                primary: {
-
-                },
-                secondary: {
-
-                },
-            },
+            outline: {
+                true: style.outline
+            }
         },
         defaultVariants:{
-            variant: 'primary',
+
         }
     }
 )
