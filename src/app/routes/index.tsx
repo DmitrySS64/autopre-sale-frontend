@@ -1,34 +1,65 @@
-import {createRouter, createRootRoute, createRoute, Outlet} from "@tanstack/react-router";
+import {
+    createRouter,
+    createRoute,
+    createRootRouteWithContext, Link, redirect,
+} from "@tanstack/react-router";
 import {
     createMainPageRoute
 } from "@pages/main_page";
-import {Sidebar} from "@widgets/sidebar/component";
 import {createTestPageRoute} from "@pages/test_page/route";
+import {SidebarLayout} from "@widgets/sidebar";
+import {createProjectsPageRoute} from "@pages/projects_page/route";
+import {createAnalysisPageRoute} from "@pages/project_page/analysis-tz_page/route";
+import {createConstructorPageRoute} from "@pages/project_page/constructor-tcp_page/route";
+import {createAuthorizationPageRoute} from "@pages/sign-in/route";
+import type {IAuthState} from "@entities/user/auth/interface";
+import ERouterPath from "@shared/routes";
 
-const rootRoute = createRootRoute({
-    component: () => <Outlet/>
+interface RouterContext {
+    auth: IAuthState;
+}
+
+const rootRoute = createRootRouteWithContext<RouterContext>()({
+    notFoundComponent: () => {
+        return (
+            <div>
+                <p>This is the notFoundComponent configured on root route</p>
+                <Link to="/">Start Over</Link>
+            </div>
+        )
+    }
 });
+
 
 const sidebarRoute = createRoute({
     id: 'app',
     getParentRoute: () => rootRoute,
-    component: () => (
-        <div className={'w-full h-full flex'}>
-            <Sidebar/>
-            <Outlet/>
-        </div>
-    )
+    component: SidebarLayout,
+    beforeLoad: ({context})=>{
+        if (!context.auth.isAuthenticated) {
+            throw redirect({
+                to: ERouterPath.AUTHORIZATION_PAGE as string
+            });
+        }
+    }
 });
+
+const AuthRoute = createAuthorizationPageRoute(rootRoute);
 
 const routeTree = rootRoute.addChildren([
     createMainPageRoute(rootRoute),
+    AuthRoute,
     sidebarRoute.addChildren([
-        createTestPageRoute(sidebarRoute)
+        createTestPageRoute(sidebarRoute),
+        createProjectsPageRoute(sidebarRoute),
+        createAnalysisPageRoute(sidebarRoute),
+        createConstructorPageRoute(sidebarRoute),
     ])
 ])
 
 const router = createRouter({
     routeTree,
+    context: undefined!,
     defaultPreload: 'intent',
     scrollRestoration: true,
     defaultStructuralSharing: true,

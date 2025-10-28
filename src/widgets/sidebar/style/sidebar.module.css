@@ -8,7 +8,7 @@
     padding: 45px 10px 30px 10px;
 
     background-color: var(--color-white);
-    box-shadow: var(--drop-shadow);
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
     color: var(--color-black);
 
 
@@ -51,10 +51,6 @@
     }
 
     &[data-status = active] {
-        background-color: var(--color-orange-300);
-        color: var(--color-orange-400);
-    }
-    &.active {
         background-color: var(--color-orange-200);
         color: var(--color-orange-500);
         .icon{

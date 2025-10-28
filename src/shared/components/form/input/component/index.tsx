@@ -8,7 +8,6 @@ const Input = ({
                    ...props
                }: IInputProps) => {
     return (
-
     <input
         type={type}
         data-slot="input"

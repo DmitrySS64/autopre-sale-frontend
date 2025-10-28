@@ -1,13 +1,19 @@
 import {Button} from "@shared/components/form/button";
 import {Input} from "@shared/components/form/input/component";
 import {useTestPagePresenter} from "@pages/test_page/case/presenter";
+import {useSidebarLayout} from "@widgets/sidebar/case/context";
+import {useEffect} from "react";
+
 
 const TestPage = () => {
-
     const { form, buttonOnClick } = useTestPagePresenter()
+    const {setTitle} = useSidebarLayout()
+    useEffect(() => {
+        setTitle("Тестовая страница")
+    }, [setTitle])
 
     return (
-        <div className={'flex flex-col gap-2 w-full pt-[45px] pr-[50px] pb-[30px] pl-[50px]'}>
+        <div className={'flex flex-col gap-2'}>
             <div className={'flex gap-2'}>
                 <Button>
                     Кнопка
@@ -30,6 +36,7 @@ const TestPage = () => {
                             <field.TextField
                                 label={'Заголовок'}
                                 className={'w-[300px]'}
+                                placeholder={'Введите значение'}
                             />
                         )}
                     </form.AppField>
@@ -50,5 +57,4 @@ const TestPage = () => {
 
     )
 }
-
-export default TestPage
+export default TestPage;

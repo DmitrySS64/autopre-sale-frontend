@@ -1,7 +1,5 @@
 import type {ComponentProps} from "react";
 
-interface IInputProps
-    extends ComponentProps<'input'>{
-}
+type IInputProps = ComponentProps<'input'>
 
 export type { IInputProps }
