@@ -1,12 +1,12 @@
 import style from '../style/sidebar.module.css'
-import {SmallLogo} from "@shared/components/images/smallLogo.tsx";
+import {SmallLogo} from "@shared/components/images/SmallLogo.tsx";
 import Icon from "@mdi/react";
 import {EIconPath} from "@shared/components/images/icons";
 import {cn} from "@shared/lib/cn";
 import {Link, useParams} from "@tanstack/react-router";
 import ERouterPath from "@shared/routes";
-import {Button} from "@shared/components/form/button";
 import {useSignOutRequest} from "@entities/user/auth/use-case/sing-out";
+import {useAuth} from "@entities/user/auth/context/useAuth.ts";
 
 interface ISidebarItemProps {
     icon?: string;
@@ -35,6 +35,7 @@ const Sidebar = () => {
     })
 
     const { mutate: signOut, isPending } = useSignOutRequest();
+    const {user} = useAuth();
 
     const handleSignOut = () => {
         signOut();
@@ -64,14 +65,12 @@ const Sidebar = () => {
                     )}
                 </div>
             </nav>
-            <div>
-                <Button
-                    onClick={handleSignOut}
-                    disabled={isPending}
-                >
+            <div className={'flex flex-col gap-[15px]'}>
+                <p className={'pl-[15px]'}>Вход: {user?.fullName}</p>
+                <button className={style.sidebarOption} onClick={handleSignOut} disabled={isPending}>
+                    <Icon path={EIconPath.LOGOUT} size={1}/>
                     Выход
-                </Button>
-                Вход
+                </button>
             </div>
         </div>
     )

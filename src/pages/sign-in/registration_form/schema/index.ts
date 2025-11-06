@@ -32,6 +32,12 @@ const registrationSchema = z
             .min(2, ERROR_MESSAGES.LASTNAME_LENGTH)
             .max(127, ERROR_MESSAGES.LASTNAME_LENGTH)
             .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS),
+        middleName: z
+            .string()
+            .min(1, ERROR_MESSAGES.EMPTY_FIELD)
+            .min(2, ERROR_MESSAGES.LASTNAME_LENGTH)
+            .max(127, ERROR_MESSAGES.LASTNAME_LENGTH)
+            .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS),
         email: z
             .string()
             .min(1, ERROR_MESSAGES.EMPTY_FIELD)

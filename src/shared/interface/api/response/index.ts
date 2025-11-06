@@ -1,7 +1,7 @@
-import type {User} from "@entities/user/auth/interface";
+import type {IUserDto} from "@entities/user/auth/interface/dto";
 
 interface IGetMeResponse {
-    user: User | null;
+    user: IUserDto | null;
 }
 
 export type {IGetMeResponse};

@@ -6,37 +6,32 @@ import type {IUseRegisterRequestResult} from "@entities/user/auth/interface/requ
 import {useAuth} from "@entities/user/auth/context/useAuth";
 import type {IRegisterPort} from "@entities/user/auth/interface/port";
 import {isEmpty} from "es-toolkit/compat";
-import {useGetMePresenter} from "@entities/user/auth/use-case/get-me/presenter";
+import type {IRegisterDto} from "@entities/user/auth/interface/dto";
+import {router} from "@app/routes";
+import ERouterPath from "@shared/routes";
 
 
 const repository = new AuthRepository(HTTP_APP_SERVICE);
 
 const useRegistrationRequest = (): IUseRegisterRequestResult => {
-    const { setUser, setIsAuthenticated } = useAuth()
-    const { refetch: getMeRequest } = useGetMePresenter()
+    const { setAuthData } = useAuth()
 
     const callback = async (port: IRegisterPort) => {
         return repository.register(port)
     }
 
-    const handleOnSuccess = async () => {
-        try{
-            setIsAuthenticated(true)
-            const { data } = await getMeRequest()
-
-            if (data && !isEmpty(data)){
-                setUser(data)
-            }
-            else {
-                setIsAuthenticated(false)
-            }
-        } catch {
-            setIsAuthenticated(false)
+    const handleOnSuccess = async (data: IRegisterDto) => {
+        if (data && !isEmpty(data.user)){
+            setAuthData(data.user);
+            await router.invalidate();
+            await router.navigate({
+                to: ERouterPath.PROJECTS_PAGE
+            })
         }
     }
 
     const handleOnError = () => {
-
+        //setAuthData(null)
     }
 
     return useMutation({

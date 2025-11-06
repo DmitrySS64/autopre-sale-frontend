@@ -1,0 +1,14 @@
+.tab{
+    all: unset;
+    user-select: none;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0 15px 5px 15px;
+    &[aria-selected="true"]{
+        border-bottom: solid 1px var(--color-dark-grey);
+    }
+    &:focus{
+        outline: none;
+    }
+}

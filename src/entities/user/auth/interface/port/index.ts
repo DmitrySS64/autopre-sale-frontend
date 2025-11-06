@@ -1,6 +1,7 @@
 interface IRegisterPort {
     firstName: string
     lastName: string
+    middleName: string | null
     email: string
     password: string
 }

@@ -5,16 +5,16 @@ enum EQueryKeys {
 
 enum EMutationKeys {
     REGISTER = `${ROOT_AUTH}register`,
-    SIGN_IN = `${ROOT_AUTH}sign-in`,
+    SIGN_IN = `${ROOT_AUTH}login`,
     SIGN_OUT = `${ROOT_AUTH}sign-out`,
     REFRESH_TOKEN = `${ROOT_AUTH}refresh-token`,
 }
 
 enum EAuthAPI {
-    ROOT = "/auth/",
-    GET_ME = `${ROOT}get_user`,
+    ROOT = "/api/Auth/",
+    GET_ME = `${ROOT}getme`,
     REGISTER = `${ROOT}register`,
-    SIGN_IN = `${ROOT}sign-in`,
+    SIGN_IN = `${ROOT}login`,
     SIGN_OUT = `${ROOT}sign-out`,
     REFRESH_TOKEN = `${ROOT}refresh-token`,
 }

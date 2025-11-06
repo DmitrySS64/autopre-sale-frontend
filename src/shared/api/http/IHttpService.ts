@@ -6,7 +6,7 @@ interface IHttpService {
 
     get: <TResponse = unknown>(
         url: string,
-        payload: IParamsPayload
+        payload?: IParamsPayload
     ) => Promise<TResponse>;
 
     post: <TResponse = unknown>(

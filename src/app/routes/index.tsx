@@ -3,9 +3,9 @@ import {
     createRoute,
     createRootRouteWithContext, Link, redirect,
 } from "@tanstack/react-router";
-import {
-    createMainPageRoute
-} from "@pages/main_page";
+//import {
+//    createMainPageRoute
+//} from "@pages/main_page";
 import {createTestPageRoute} from "@pages/test_page/route";
 import {SidebarLayout} from "@widgets/sidebar";
 import {createProjectsPageRoute} from "@pages/projects_page/route";
@@ -27,6 +27,24 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
                 <Link to="/">Start Over</Link>
             </div>
         )
+    },
+});
+
+const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    beforeLoad: ({ context }) => {
+        if (context.auth.isAuthenticated) {
+            throw redirect({
+                to: ERouterPath.PROJECTS_PAGE as string,
+                replace: true
+            });
+        } else {
+            throw redirect({
+                to: ERouterPath.AUTHORIZATION_PAGE as string,
+                replace: true
+            });
+        }
     }
 });
 
@@ -35,19 +53,12 @@ const sidebarRoute = createRoute({
     id: 'app',
     getParentRoute: () => rootRoute,
     component: SidebarLayout,
-    beforeLoad: ({context})=>{
-        if (!context.auth.isAuthenticated) {
-            throw redirect({
-                to: ERouterPath.AUTHORIZATION_PAGE as string
-            });
-        }
-    }
 });
 
 const AuthRoute = createAuthorizationPageRoute(rootRoute);
 
 const routeTree = rootRoute.addChildren([
-    createMainPageRoute(rootRoute),
+    indexRoute,
     AuthRoute,
     sidebarRoute.addChildren([
         createTestPageRoute(sidebarRoute),

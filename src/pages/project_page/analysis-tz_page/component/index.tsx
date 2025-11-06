@@ -1,7 +1,7 @@
 const AnalysisPage = () => {
     return (
         <>
-            Анилиз ТЗ
+            Анализ ТЗ
         </>
     )
 }

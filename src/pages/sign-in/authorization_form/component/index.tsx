@@ -13,26 +13,27 @@ const AuthForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <form.AppField name={'email'}>
-                {(field) => (
-                    <field.TextField
-                        type={'email'}
-                        label={'Почта'}
-                        placeholder={'Введите почту'}
+        <form onSubmit={handleSubmit} className={'flex flex-col items-center gap-[60px]'}>
+            <div className={'w-full flex flex-col gap-[20px]'}>
+                <form.AppField name={'email'}>
+                    {(field) => (
+                        <field.TextField
+                            type={'email'}
+                            placeholder={'Почта'}
 
-                    />
-                )}
-            </form.AppField>
-            <form.AppField name={'password'}>
-                {(field) => (
-                    <field.TextField
-                        type={'password'}
-                        label={"Пароль"}
-                        placeholder={"Введите пароль"}
-                    />
-                )}
-            </form.AppField>
+                        />
+                    )}
+                </form.AppField>
+                <form.AppField name={'password'}>
+                    {(field) => (
+                        <field.TextField
+                            type={'password'}
+                            placeholder={"Пароль"}
+                        />
+                    )}
+                </form.AppField>
+            </div>
+
             <form.AppForm>
                 <form.SubscribeButton>
                     Войти

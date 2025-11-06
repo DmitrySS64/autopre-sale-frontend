@@ -98,7 +98,12 @@ class HttpService implements IHttpService {
                 try {
                     if (config.url?.includes("/auth/refresh")) return config
 
-                    const accessToken = this._cookieService.get(ECookieKey.ACCESS_TOKEN)
+                    let accessToken: string | null;
+                    try {
+                        accessToken = this._cookieService.get(ECookieKey.ACCESS_TOKEN)
+                    } catch {
+                        accessToken = null
+                    }
 
                     if (accessToken && this._jwtService.isTokenExpired(accessToken)) {
                         const newAccessToken = await this._refreshToken()
@@ -122,7 +127,7 @@ class HttpService implements IHttpService {
         this._instance.interceptors.response.use(
             (response: AxiosResponse) => response.data,
             async (error: AxiosError) => {
-                const originalRequest = error.config
+                const originalRequest = error.config as InternalAxiosRequestConfig
 
                 if (
                     originalRequest &&

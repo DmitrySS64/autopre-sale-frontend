@@ -4,6 +4,11 @@ import {router} from "@app/routes";
 
 function InnerApp(){
     const auth = useAuth()
+
+    if (auth.isLoading) {
+        return <div>Проверка авторизации</div>
+    }
+
     return <RouterProvider router={router} context={{auth}}/>
 }
 

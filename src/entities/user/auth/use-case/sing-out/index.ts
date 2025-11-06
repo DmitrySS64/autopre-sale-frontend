@@ -16,7 +16,7 @@ type IUseSignOutRequestResult = UseMutationResult<
 const repository = new AuthRepository(HTTP_APP_SERVICE);
 
 const useSignOutRequest = (): IUseSignOutRequestResult => {
-    const { setIsAuthenticated, setUser, logout } = useAuth();
+    const { logout } = useAuth();
 
     const callback = async (): Promise<void> => {
         return repository.signOut();
@@ -24,14 +24,7 @@ const useSignOutRequest = (): IUseSignOutRequestResult => {
 
     const handleOnSuccess = async (): Promise<void> => {
         try {
-            // Очищаем состояние аутентификации
-            setIsAuthenticated(false);
-            setUser(null);
-
-            // Если в useAuth есть метод logout, используем его
-            if (logout) {
-                logout();
-            }
+            logout()
 
             // Инвалидируем роутер и перенаправляем на страницу авторизации
             await router.invalidate();
@@ -45,12 +38,7 @@ const useSignOutRequest = (): IUseSignOutRequestResult => {
 
     const handleOnError = (error: Error): void => {
         console.error('Sign out error:', error);
-        // Даже при ошибке на сервере очищаем локальное состояние
-        setIsAuthenticated(false);
-        setUser(null);
-        if (logout) {
-            logout();
-        }
+        logout();
 
         // Все равно перенаправляем на страницу авторизации
         router.navigate({

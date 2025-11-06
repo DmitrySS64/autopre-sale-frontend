@@ -1,15 +1,17 @@
-interface IBaseUserDto {
+interface IUserDto {
     id: string;
     email: string;
-    firstName: string;
-    lastName: string;
-    token: string;
+    fullName: string;
+}
+
+interface IBaseUserDto {
+    user: IUserDto;
+    accessToken: string;
 }
 
 type IRegisterDto = IBaseUserDto
 type ISignInDto = IBaseUserDto
-type IGetMeDto = IBaseUserDto
-type IUserDto = IBaseUserDto
+type IGetMeDto = IUserDto
 
 export type {IRegisterDto, IGetMeDto, IUserDto, ISignInDto}
 
