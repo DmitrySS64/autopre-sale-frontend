@@ -3,19 +3,35 @@ import {Input} from "@shared/components/form/input/component";
 import {useTestPagePresenter} from "@pages/test_page/case/presenter";
 import {useSidebarLayout} from "@widgets/sidebar/case/context";
 import {useEffect} from "react";
+import {useModal} from "@widgets/modal/use-case";
 
 
 const TestPage = () => {
     const { form, buttonOnClick } = useTestPagePresenter()
     const {setTitle} = useSidebarLayout()
+    const {showModal} = useModal()
     useEffect(() => {
         setTitle("Тестовая страница")
     }, [setTitle])
 
+    const showModalHandle = () => showModal({
+        title: "Вы точно хотите удалить элемент бэклога?",
+        content: <>
+            <div>
+                <Button outline>
+                    Отмена
+                </Button>
+                <Button>
+                    Удалить
+                </Button>
+            </div>
+        </>
+    })
+
     return (
         <div className={'flex flex-col gap-2'}>
             <div className={'flex gap-2'}>
-                <Button>
+                <Button onClick={showModalHandle}>
                     Кнопка
                 </Button>
                 <Button outline>

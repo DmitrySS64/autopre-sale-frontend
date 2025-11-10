@@ -7,6 +7,7 @@ import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {TanStackRouterDevtools} from "@tanstack/react-router-devtools";
 import {AuthProvider} from "@entities/user/auth/provider";
 import {InnerApp} from "@app/entrypoint/innerApp.tsx";
+import {ModalProvider} from "@widgets/modal/provider";
 
 const queryClient = new QueryClient()
 
@@ -20,7 +21,9 @@ if (rootElement && !rootElement.innerHTML) {
             <QueryClientProvider client={queryClient}>
                 <ReactQueryDevtools buttonPosition={'bottom-right'}/>
                 <AuthProvider>
-                    <InnerApp/>
+                    <ModalProvider>
+                        <InnerApp/>
+                    </ModalProvider>
                 </AuthProvider>
                 <TanStackRouterDevtools router={router}/>
             </QueryClientProvider>

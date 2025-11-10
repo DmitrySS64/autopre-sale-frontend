@@ -1,7 +1,7 @@
 import style from '../style/sidebar.module.css'
 import {SmallLogo} from "@shared/components/images/SmallLogo.tsx";
 import Icon from "@mdi/react";
-import {EIconPath} from "@shared/components/images/icons";
+import {ICON_PATH} from "@shared/components/images/icons";
 import {cn} from "@shared/lib/cn";
 import {Link, useParams} from "@tanstack/react-router";
 import ERouterPath from "@shared/routes";
@@ -16,7 +16,7 @@ interface ISidebarItemProps {
 }
 
 const SidebarItem = ({
-    icon = EIconPath.FOLDER_COPY,
+    icon = ICON_PATH.FOLDER_COPY,
     name = "Проекты",
     active,
     path = ERouterPath.PROJECTS_PAGE
@@ -48,18 +48,18 @@ const Sidebar = () => {
                 <div className={'flex flex-col gap-[5px] w-full h-fit '}>
                     <SidebarItem
                         path={ERouterPath.PROJECTS_PAGE}
-                        icon={EIconPath.FOLDER_COPY}
+                        icon={ICON_PATH.FOLDER_COPY}
                         name={'Проекты'}/>
                     {projectId && (
                         <>
                             <div className={'h-[2px] w-[250px] bg-gray-400 mx-auto mt-[5px] mb-[12px] select-none'}/>
                             <SidebarItem
                                 path={ERouterPath.PROJECT + '/' + projectId + ERouterPath.ANALYSIS}
-                                icon={EIconPath.ANALYSIS}
+                                icon={ICON_PATH.ANALYSIS}
                                 name={'Анализ ТЗ'}/>
                             <SidebarItem
                                 path={ERouterPath.PROJECT + '/' + projectId + ERouterPath.CONSTRUCTOR}
-                                icon={EIconPath.DESCRIPTION}
+                                icon={ICON_PATH.DESCRIPTION}
                                 name={'Конструктор ТКП'}/>
                         </>
                     )}
@@ -68,7 +68,7 @@ const Sidebar = () => {
             <div className={'flex flex-col gap-[15px]'}>
                 <p className={'pl-[15px]'}>Вход: {user?.fullName}</p>
                 <button className={style.sidebarOption} onClick={handleSignOut} disabled={isPending}>
-                    <Icon path={EIconPath.LOGOUT} size={1}/>
+                    <Icon path={ICON_PATH.LOGOUT} size={1}/>
                     Выход
                 </button>
             </div>

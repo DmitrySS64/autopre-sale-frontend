@@ -18,7 +18,7 @@ import {
     mdiLoading
 } from "@mdi/js"
 
-const EIconPath = {
+const ICON_PATH = {
     LOGOUT: mdiLogout,
     FOLDER_COPY: mdiFolderMultiple,
     ANALYSIS: mdiChartBox,
@@ -41,4 +41,4 @@ const EIconPath = {
 
 //export type EIconPath = typeof EIconPath[keyof typeof EIconPath]
 
-export { EIconPath }
+export { ICON_PATH }
