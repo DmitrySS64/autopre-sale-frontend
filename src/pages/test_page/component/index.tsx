@@ -4,12 +4,15 @@ import {useTestPagePresenter} from "@pages/test_page/case/presenter";
 import {useSidebarLayout} from "@widgets/sidebar/case/context";
 import {useEffect} from "react";
 import {useModal} from "@widgets/modal/use-case";
+import {useContextMenu} from "@widgets/context_menu/use-case";
+import {ICON_PATH} from "@shared/components/images/icons";
 
 
 const TestPage = () => {
     const { form, buttonOnClick } = useTestPagePresenter()
     const {setTitle} = useSidebarLayout()
     const {showModal} = useModal()
+    const {showContextMenu} = useContextMenu()
     useEffect(() => {
         setTitle("Тестовая страница")
     }, [setTitle])
@@ -28,13 +31,40 @@ const TestPage = () => {
         </>
     })
 
+    const showContextMenuHandel = (e: React.MouseEvent) => {
+        showContextMenu({
+            items: [
+                {
+                    id: "Add",
+                    icon: ICON_PATH.ADD,
+                    label: 'Добавить',
+                    onClick: () => {},
+                },{
+                    id: 'divider',
+                    divider: true,
+                }, {
+                    id: 'delete',
+                    label: "Удалить",
+                    disabled: true
+                }, {
+                    id: 'delete',
+                    label: "Удалить",
+                }
+            ],
+            position: {
+                x: e.clientX,
+                y: e.clientY
+            }
+        })
+    }
+
     return (
         <div className={'flex flex-col gap-2'}>
             <div className={'flex gap-2'}>
                 <Button onClick={showModalHandle}>
                     Кнопка
                 </Button>
-                <Button outline>
+                <Button onClick={showContextMenuHandel} outline>
                     Кнопка
                 </Button>
                 <Button disabled>

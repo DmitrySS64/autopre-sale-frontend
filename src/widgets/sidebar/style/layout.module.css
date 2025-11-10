@@ -11,6 +11,7 @@
     flex-direction: column;
     padding: 45px 50px 30px 50px;
     gap: 45px;
+    overflow: hidden;
 }
 .content{
     display: flex;
@@ -20,6 +21,7 @@
     background-color: var(--color-neutral);
     border-radius: 8px;
     padding: 40px;
+    overflow: auto;
 }
 .title {
     font-size: 36px;
