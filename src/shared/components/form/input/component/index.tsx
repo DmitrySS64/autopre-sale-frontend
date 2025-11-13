@@ -11,7 +11,7 @@ const Input = ({
     <input
         type={type}
         data-slot="input"
-        className={cn(style.input, className)}
+        className={cn(className, style.input)}
         {...props}
     />
     )
