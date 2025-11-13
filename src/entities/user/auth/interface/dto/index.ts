@@ -7,6 +7,7 @@ interface IUserDto {
 interface IBaseUserDto {
     user: IUserDto;
     accessToken: string;
+    refreshToken: string;
 }
 
 type IRegisterDto = IBaseUserDto

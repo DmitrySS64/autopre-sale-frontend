@@ -3,7 +3,6 @@ import {HTTP_APP_SERVICE} from "@shared/services/http/HttpAppService.ts";
 import {useQuery, type UseQueryResult} from "@tanstack/react-query";
 import {EQueryKeys} from "@shared/enum/query";
 import type {IGetMeDto} from "@entities/user/auth/interface/dto";
-import {ELocalStorageKeys} from "@shared/enum/storage";
 import ERouterPath from "@shared/routes";
 
 
@@ -23,7 +22,6 @@ function useGetMeRequest({
             return repository.getMe()
         } catch (error) {
             if (error?.status === 401 || error?.message?.includes('accessToken')) {
-                localStorage.removeItem(ELocalStorageKeys.AUTH_TOKEN);
                 window.location.href = ERouterPath.AUTHORIZATION_PAGE;
             }
             throw error;
