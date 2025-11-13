@@ -6,6 +6,7 @@ import {useEffect} from "react";
 import {useModal} from "@widgets/modal/use-case";
 import {useContextMenu} from "@widgets/context_menu/use-case";
 import {ICON_PATH} from "@shared/components/images/icons";
+import {Table} from "@shared/components/table/component";
 
 
 const TestPage = () => {
@@ -99,6 +100,7 @@ const TestPage = () => {
 
                 <Input placeholder={'Введите значение'} disabled/>
             </div>
+            <Table/>
         </div>
 
     )

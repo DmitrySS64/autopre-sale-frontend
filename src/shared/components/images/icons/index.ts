@@ -15,7 +15,7 @@ import {
     mdiUpload,
     mdiMinus,
     mdiAlert,
-    mdiLoading
+    mdiLoading, mdiFormatListGroupPlus
 } from "@mdi/js"
 
 const ICON_PATH = {
@@ -25,6 +25,7 @@ const ICON_PATH = {
     DESCRIPTION: mdiFileDocument,
     SEARCH: mdiMagnify,
     ADD: mdiPlus ,
+    ADD_MULTIPLE: mdiFormatListGroupPlus,
     OPEN_FOLDER: mdiFolderOpenOutline,
     ARROW_DROP_DOWN: mdiMenuDown ,
     DONE: mdiCheck ,
