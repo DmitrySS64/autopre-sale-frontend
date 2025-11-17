@@ -1,39 +1,43 @@
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import type {ITableRowProps} from "@shared/components/table/interface";
 
-const useTableData = (values: ITableRowProps[] = [
-    {
-        workNumber: '1',
-        canOpen: false,
-        rowValues: [{value: 'Значение 1'}, {value: 'Значение 2'}]
-    },
-    {
-        workNumber: '2',
-        canOpen: true,
-        isOpen: true,
-        rowValues: [{value: 'Значение 1'}, {value: 'Значение 2'}],
-        children: [
-            {
-                workNumber: '2.1',
-                level: '2',
-                rowValues: [{value: 'Значение 1'}, {value: 'Значение 2'}]
-            },
-        ]
-    },
-]) => {
-    const [tableData, setTableData] = useState<ITableRowProps[]>(()=> values);
+const useTableData = (initialValues?: ITableRowProps[]) => {
+    const defaultData: ITableRowProps[] = [
+        {
+            workNumber: '1',
+            canOpen: true,
+            isOpen: true,
+            rowValues: [{value: 'Значение 1'}, {value: 'Значение 1'}],
+            children: [
+                {
+                    workNumber: '1.1',
+                    level: '2',
+                    rowValues: [{value: 'Значение 1.1'}, {value: 'Значение 1.1'}]
+                },
+            ]
+        },
+        {
+            workNumber: '2',
+            canOpen: true,
+            isOpen: true,
+            rowValues: [{value: 'Значение 2'}, {value: 'Значение 2'}],
+            children: [
+                {
+                    workNumber: '2.1',
+                    level: '2',
+                    rowValues: [{value: 'Значение 2.1'}, {value: 'Значение 2.1'}]
+                },
+            ]
+        },
+    ]
+    const [tableData, setTableData] = useState<ITableRowProps[]>(()=> initialValues  || defaultData);
 
-    const updateTableData = (updater: (data: ITableRowProps[]) => ITableRowProps[]) => {
+    const updateTableData = useCallback((updater: (data: ITableRowProps[]) => ITableRowProps[]) => {
         setTableData(prev => updater([...prev]));
-    };
+    }, []);
 
-    const generateWorkNumber = (parentRow: ITableRowProps | null, level: string, existingChildren?: ITableRowProps[]) => {
-        if (!parentRow) {
-            // Корневой уровень
-            //const rootNumbers = tableData.filter(row => !row.level || row.level === '1');
-            //return `${rootNumbers.length + 1}`;
-            return 'temp'
-        }
+    const generateWorkNumber = useCallback((parentRow: ITableRowProps | null, level: string, existingChildren?: ITableRowProps[]) => {
+        if (!parentRow) return 'temp'
 
         const children = existingChildren || parentRow.children || [];
 
@@ -47,9 +51,46 @@ const useTableData = (values: ITableRowProps[] = [
         }
 
         return `${children.length + 1}`;
-    }
+    }, [])
 
-    const addRow = (rowId: string, isChild: boolean = false) => {
+    const findRow = useCallback((
+        items: ITableRowProps[],
+        id: string,
+        parent?: ITableRowProps
+    ): { row: ITableRowProps; parent?: ITableRowProps } | null => {
+        for (const item of items) {
+            if (item.workNumber === id) return { row: item, parent };
+            if (item.children) {
+                const res = findRow(item.children, id, item);
+                if (res) return res;
+            }
+        }
+        return null;
+    }, []);
+
+    const renumberTable = useCallback((items: ITableRowProps[], parentNum: string = ''): ITableRowProps[] => {
+        return items.map((item, index) => {
+            const newWorkNumber = parentNum ? `${parentNum}.${index + 1}` : `${index + 1}`;
+
+            const hasChildren = item.children && item.children.length > 0;
+            //const shouldUpdateCanOpen = item.canOpen && !hasChildren;
+
+            const updatedItem = {
+                ...item,
+                workNumber: newWorkNumber,
+                canOpen: hasChildren,
+                isOpen: hasChildren ? item.isOpen : false,
+            };
+
+            if (item.children) {
+                updatedItem.children = renumberTable(item.children, newWorkNumber);
+            }
+
+            return updatedItem;
+        });
+    }, []);
+    
+    const addRow = useCallback((rowId: string, isChild: boolean = false) => {
         const result = findRow(tableData, rowId);
         if (!result) return;
 
@@ -143,9 +184,9 @@ const useTableData = (values: ITableRowProps[] = [
                 return renumberTable(result.items);
             }
         });
-    };
+    }, [findRow, generateWorkNumber, renumberTable, tableData, updateTableData]);
 
-    const deleteRow = (rowId: string) => {
+    const deleteRow = useCallback((rowId: string) => {
         updateTableData(data => {
             const deleteRecursive = (items: ITableRowProps[]): ITableRowProps[] => {
                 return items.filter(item => {
@@ -162,25 +203,9 @@ const useTableData = (values: ITableRowProps[] = [
             const dataAfterDelete = deleteRecursive(data);
             return renumberTable(dataAfterDelete);
         });
-    };
+    }, [renumberTable, updateTableData]);
 
-
-    const findRow = (
-        items: ITableRowProps[],
-        id: string,
-        parent?: ITableRowProps
-    ): { row: ITableRowProps; parent?: ITableRowProps } | null => {
-        for (const item of items) {
-            if (item.workNumber === id) return { row: item, parent };
-            if (item.children) {
-                const res = findRow(item.children, id, item);
-                if (res) return res;
-            }
-        }
-        return null;
-    };
-
-    const handleToggle = (rowId: string) => {
+    const handleToggle = useCallback((rowId: string) => {
         updateTableData(data => {
             const toggleRecursive = (items: ITableRowProps[]): ITableRowProps[] => {
                 return items.map(item => {
@@ -199,30 +224,7 @@ const useTableData = (values: ITableRowProps[] = [
 
             return toggleRecursive(data);
         });
-    };
-
-    const renumberTable = (items: ITableRowProps[], parentNum: string = ''): ITableRowProps[] => {
-        return items.map((item, index) => {
-            const newWorkNumber = parentNum ? `${parentNum}.${index + 1}` : `${index + 1}`;
-
-            const hasChildren = item.children && item.children.length > 0;
-            //const shouldUpdateCanOpen = item.canOpen && !hasChildren;
-
-            const updatedItem = {
-                ...item,
-                workNumber: newWorkNumber,
-                canOpen: hasChildren,
-                isOpen: hasChildren ? item.isOpen : false,
-            };
-
-            if (item.children) {
-                updatedItem.children = renumberTable(item.children, newWorkNumber);
-            }
-
-            return updatedItem;
-        });
-    };
-
+    }, [updateTableData]);
 
     return {
         tableData,

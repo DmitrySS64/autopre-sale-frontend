@@ -1,4 +1,4 @@
-import {useMemo, useState} from "react";
+import {useCallback, useMemo, useState} from "react";
 import type {ITableRowProps} from "@shared/components/table/interface";
 
 const useTableSearch = (tableData: ITableRowProps[]) => {
@@ -7,6 +7,7 @@ const useTableSearch = (tableData: ITableRowProps[]) => {
         workType: '',
         acceptanceCriteria: ''
     });
+
     const filteredData = useMemo(() => {
         const match = (value = "", filter = "") =>
             !filter || value.toLowerCase().includes(filter.toLowerCase());
@@ -20,8 +21,8 @@ const useTableSearch = (tableData: ITableRowProps[]) => {
                         match(item.rowValues?.[1]?.value ?? '', searchValues.acceptanceCriteria);
 
                     const children = item.children ? filterRecursive(item.children) : [];
-                    if (matches || children.length) {
-                        return { ...item, children };
+                    if (matches || children.length > 0) {
+                        return { ...item, children: children.length > 0 ? children : undefined };
                     }
                     return null;
                 })
@@ -30,12 +31,12 @@ const useTableSearch = (tableData: ITableRowProps[]) => {
         return filterRecursive(tableData);
     }, [tableData, searchValues]);
 
-    const handleSearchChange = (field: keyof typeof searchValues, value: string) => {
+    const handleSearchChange = useCallback((field: keyof typeof searchValues, value: string) => {
         setSearchValues(prev => ({
             ...prev,
             [field]: value
         }));
-    };
+    }, []);
 
     return {
         searchValues,

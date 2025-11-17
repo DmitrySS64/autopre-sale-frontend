@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import type {ITableRowProps} from "@shared/components/table/interface";
 
 
@@ -10,20 +10,20 @@ const useTableEditing = (
     const [editingCell, setEditingCell] = useState<{ rowId: string; cellIndex: number } | null>(null);
     const [editingValue, setEditingValue] = useState<string>('');
 
-    const handleCellDoubleClick = (rowId: string, cellIndex: number) => {
+    const handleCellDoubleClick = useCallback((rowId: string, cellIndex: number) => {
         const result = findRow(tableData, rowId);
         if (!result) return;
 
         const cellValue = result.row.rowValues?.[cellIndex]?.value || '';
         setEditingCell({ rowId, cellIndex });
         setEditingValue(cellValue);
-    };
+    }, [findRow, tableData]);
 
-    const handleCellEdit = (value: string) => {
+    const handleCellEdit = useCallback((value: string) => {
         setEditingValue(value);
-    };
+    }, []);
 
-    const handleCellEditComplete = () => {
+    const handleCellEditComplete = useCallback(() => {
         if (editingCell) {
             updateTableData(data => {
                 const updateRecursive = (items: ITableRowProps[]): ITableRowProps[] => {
@@ -52,15 +52,17 @@ const useTableEditing = (
 
         setEditingCell(null);
         setEditingValue('');
-    };
-    const handleRowClick = (rowId: string) => {
+    }, [editingCell, editingValue, updateTableData]);
+    
+    const handleRowClick = useCallback((rowId: string) => {
         if (editingCell && editingCell.rowId !== rowId) {
             handleCellEditComplete();
         }
-    };
+    }, [editingCell, handleCellEditComplete]);
 
     return {
-        editingCell, editingValue,
+        editingCell,
+        editingValue,
         handleCellDoubleClick,
         handleCellEdit,
         handleCellEditComplete,

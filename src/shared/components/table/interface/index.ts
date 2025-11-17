@@ -1,11 +1,22 @@
 import React from "react";
 
+interface IStaticTableProps {
+    data?: IStaticTableRow[];
+    headers?: string[];
+    columnWidths?: string[];
+}
+
 interface ITableFieldProps {
     value: string | null;
 }
 
 interface ITableProps {
     values?: ITableRowProps[];
+}
+
+interface IStaticTableRow {
+    id: string;
+    cells: React.ReactNode[] | string[];
 }
 
 interface ITableRowProps {
@@ -33,4 +44,4 @@ interface ITableRowProps {
     dropPosition?: 'before' | 'after' | 'inside' | null;
 }
 
-export type { ITableProps, ITableRowProps}
+export type { ITableProps, ITableRowProps, IStaticTableProps}

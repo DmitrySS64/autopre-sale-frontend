@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback, useMemo} from "react";
 import type {ITableRowProps} from "@shared/components/table/interface";
 import {useContextMenu} from "@widgets/context_menu/use-case";
 import {ICON_PATH} from "@shared/components/images/icons";
@@ -22,7 +22,8 @@ const useTablePresenter = (
     } = useTableData(values)
 
     const {
-        editingCell, editingValue,
+        editingCell, 
+        editingValue,
         handleCellDoubleClick,
         handleCellEdit,
         handleCellEditComplete,
@@ -36,22 +37,24 @@ const useTablePresenter = (
     } = useTableSearch(tableData)
 
     const {
-        draggedRow, dragOverRow, dropPosition,
+        draggedRow, 
+        dragOverRow, 
+        dropPosition,
         handleDragStart,
         handleDragOver,
         handleDragLeave,
         handleDrop,
-    } = useTableDnD(setTableData, renumberTable)
+    } = useTableDnD(setTableData, renumberTable, handleToggle)
 
     const {showContextMenu} = useContextMenu()
 
-    const showContextMenuHandle = (e: React.MouseEvent, rowId: string) => {
+    const showContextMenuHandle = useCallback((e: React.MouseEvent, rowId: string) => {
         e.preventDefault();
         const result = findRow(tableData, rowId);
         if (!result) return;
         const {row} = result;
         const currentLevel = row.level || '1';
-        const canAddChild = currentLevel != '3';
+        const canAddChild = currentLevel !== '3';
 
         showContextMenu({
             items: [
@@ -75,31 +78,72 @@ const useTablePresenter = (
             ],
             position: { x: e.clientX, y: e.clientY }
         });
-    };
+    }, [addRow, deleteRow, findRow, showContextMenu, tableData]);
 
-    return {
-        //данные
-        filteredData,
-        searchValues,
-        //редактирование
-        editingCell,
-        editingValue,
-        handleRowClick,
-        handleCellDoubleClick,
-        handleCellEdit,
-        handleCellEditComplete,
-        //поиск
+    return useMemo(() => ({
+        // Data state
+        data: {
+            filteredData,
+            searchValues,
+            tableData, // Добавил для отладки если нужно
+        },
+
+        // Editing state and handlers
+        editing: {
+            editingCell,
+            editingValue,
+            handlers: {
+                handleRowClick,
+                handleCellDoubleClick,
+                handleCellEdit,
+                handleCellEditComplete,
+            }
+        },
+
+        // Search handlers
+        search: {
+            handleSearchChange,
+        },
+
+        // Row operations
+        rowOperations: {
+            handleToggle,
+            showContextMenuHandle,
+        },
+
+        // Drag and drop
+        dragAndDrop: {
+            draggedRow,
+            dragOverRow,
+            dropPosition,
+            handlers: {
+                handleDragStart,
+                handleDragOver,
+                handleDragLeave,
+                handleDrop,
+            }
+        },
+
+        // Utility functions (если нужны внешнему коду)
+        actions: {
+            addRow,
+            deleteRow,
+            findRow: (id: string) => findRow(tableData, id),
+        }
+    }), [
+        // Data dependencies
+        filteredData, searchValues, tableData,
+        // Editing dependencies
+        editingCell, editingValue, handleRowClick, handleCellDoubleClick, handleCellEdit, handleCellEditComplete,
+        // Search dependencies
         handleSearchChange,
-        //контекст
-        handleToggle,
-        showContextMenuHandle,
-        //Drag and drop
-        draggedRow, dragOverRow, dropPosition,
-        handleDragStart,
-        handleDragOver,
-        handleDragLeave,
-        handleDrop
-    }
+        // Row operations dependencies
+        handleToggle, showContextMenuHandle,
+        // Drag and drop dependencies
+        draggedRow, dragOverRow, dropPosition, handleDragStart, handleDragOver, handleDragLeave, handleDrop,
+        // Actions dependencies
+        addRow, deleteRow, findRow,
+    ]);
 }
 
 export default useTablePresenter

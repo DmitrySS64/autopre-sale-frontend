@@ -6,7 +6,8 @@ import {useEffect} from "react";
 import {useModal} from "@widgets/modal/use-case";
 import {useContextMenu} from "@widgets/context_menu/use-case";
 import {ICON_PATH} from "@shared/components/images/icons";
-import {Table} from "@shared/components/table/component";
+import {BacklogTable, StaticTable} from "@shared/components/table";
+import type {IStaticTableProps} from "@shared/components/table/interface";
 
 
 const TestPage = () => {
@@ -59,6 +60,28 @@ const TestPage = () => {
         })
     }
 
+    const stateTableData : IStaticTableProps = {
+        headers:[
+            'Заголовок 1', "Заголовок 3"
+        ],
+        data:[
+            {
+                id: '1',
+                cells: [
+                    "Текст1", "Текст2"
+                ]
+            },{
+                id: '2',
+                cells: [
+                    "Текст1", "Текст2"
+                ]
+            }
+        ],
+        columnWidths: [
+            '100%', '100%'
+        ],
+    }
+
     return (
         <div className={'flex flex-col gap-2'}>
             <div className={'flex gap-2'}>
@@ -100,7 +123,8 @@ const TestPage = () => {
 
                 <Input placeholder={'Введите значение'} disabled/>
             </div>
-            <Table/>
+            <StaticTable {...stateTableData}/>
+            <BacklogTable/>
         </div>
 
     )

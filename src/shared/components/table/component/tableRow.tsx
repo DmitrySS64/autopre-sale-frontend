@@ -5,7 +5,6 @@ import Icon from "@mdi/react";
 import {ICON_PATH} from "@shared/components/images/icons";
 
 const TableRow = ({
-                      rowIndex = 0,
                       workNumber = '1',
                       canOpen = false,
                       level = '1',
@@ -30,6 +29,14 @@ const TableRow = ({
                   }: ITableRowProps) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const isEditing = editingCell?.rowId === workNumber;
+
+    const rowClassName = [
+        isDragOver ? style.dragOver : '',
+        dropPosition === 'after' ? style.dropAfter : '',
+        dropPosition === 'before' ? style.dropBefore : '',
+        dropPosition === 'inside' ? style.dropInside : ''
+    ].filter(Boolean).join(' ');
+
     const handleButtonClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onToggle?.();
@@ -83,21 +90,11 @@ const TableRow = ({
 
     return (
         <tr
-            className={[
-                isDragOver ? style.dragOver : '',
-                dropPosition &&
-                    dropPosition == 'after' ?
-                        style.dropAfter :
-                        dropPosition == 'before' ?
-                            style.dropBefore :
-                                dropPosition == 'inside' ?
-                                    style.dropInside : ''
-            ].join(' ')}
+            className={rowClassName}
             onClick={onRowClick}
             onContextMenu={onContextMenu}
-            tabIndex={rowIndex}
             onKeyDown={handleRowKeyDown}
-
+            tabIndex={0}
             draggable={true}
             onDragStart={(e) => onDragStart?.(e, {
                 workNumber,
@@ -136,7 +133,7 @@ const TableRow = ({
                 return (
                     <td
                         key={index}
-                        tabIndex={rowIndex}
+                        tabIndex={0}
                         onDoubleClick={() => onCellDoubleClick?.(index)}
                         onKeyDown={(e) => handleCellKeyDown(e, index)}
                         className={style.editableCell + ' ' + (isCellEditing && style.selected)}
@@ -144,12 +141,12 @@ const TableRow = ({
                         {isCellEditing ? (
                             <textarea
                                 ref={textareaRef}
+                                tabIndex={0}
                                 value={editingValue}
                                 onChange={handleInputChange}
                                 onKeyDown={handleKeyDown}
                                 onBlur={handleBlur}
                                 onClick={(e) => e.stopPropagation()}
-                                tabIndex={rowIndex}
                             />
                         ) : (item.value)
                         }
