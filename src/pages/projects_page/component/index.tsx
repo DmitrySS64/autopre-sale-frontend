@@ -3,104 +3,25 @@ import { Input } from "@/shared/components/form/input";
 import { Modal } from "@/shared/components/modal/component";
 import { ProjectItem } from "@/shared/components/projects/project_item";
 import { useSidebarLayout } from "@widgets/sidebar/case/context";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useProjectsPagePresenter } from "../presenter/useProjectsPagePresenter";
 
 const ProjectsPage = () => {
-    const { setTitle } = useSidebarLayout()
-    const [visible, setVisible] = useState<boolean>(false);
-    const [modalId, setModalId] = useState<string>('');
-    
-    // Состояния для формы создания
-    const [projectName, setProjectName] = useState<string>('');
-    const [projectDescription, setProjectDescription] = useState<string>('');
-
-    // Состояния для формы редактирования
-    const [editingProject, setEditingProject] = useState<{id: string, name: string, description: string} | null>(null);
-    const [editProjectName, setEditProjectName] = useState<string>('');
-    const [editProjectDescription, setEditProjectDescription] = useState<string>('');
-
-    // Состояния для удаления проекта
-    const [projectToDelete, setProjectToDelete] = useState<{id: string, name: string} | null>(null);
-
-    const handleOpenModal = () => {
-        setModalId('create-project-modal');
-        setVisible(true);
-        setProjectName('');
-        setProjectDescription('');
-    };
-
-    const handleOpenEditModal = (project: {id: string, name: string, description: string}) => {
-        setEditingProject(project);
-        setEditProjectName(project.name);
-        setEditProjectDescription(project.description);
-        setModalId('edit-project-modal');
-        setVisible(true);
-    };
-
-    const handleOpenDeleteModal = (projectId: string, projectName: string) => {
-        setProjectToDelete({ id: projectId, name: projectName });
-        setModalId('delete-project-modal');
-        setVisible(true);
-    };
-
-    const handleCloseModal = (id: string) => {
-        setVisible(false);
-        setModalId('');
-        setEditingProject(null);
-        setProjectToDelete(null);
-    };
-
-    const handleCreateProject = () => {
-        // Логика создания проекта
-        handleCloseModal(modalId);
-    };
-
-    const handleEditProject = () => {
-        if (editingProject) {
-            // Логика обновления проекта
-
-            handleCloseModal(modalId);
-        }
-    };
-
-    const handleDeleteProject = () => {
-        if (projectToDelete) {
-            // Логика удаления проекта
-            handleCloseModal(modalId);
-        }
-    };
-
-    const handleCancel = () => {
-        handleCloseModal(modalId);
-    };
-
-    const handleSearchSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Логика обработки поиска и фильтрации
-    };
-
-    const isCreateDisabled = !projectName.trim();
-    const isEditDisabled = !editProjectName.trim();
-
-    // Пример данных проектов
-    const projects = [
-        { 
-            id: '1', 
-            name: 'РусАгро - Видеоаналитика контроля биобезопасности', 
-            description: 'Система в режиме реального времени отслеживает соблюдение санитарных норм, выявляет потенциальные угрозы и помогает предотвращать распространение болезней, гарантируя безопасность продукции.' 
-        },
-        { id: '2', name: 'Проект 2', description: 'Описание проекта 2' },
-        { id: '3', name: 'Проект 3', description: 'Описание проекта 3' },
-    ];
+    const { setTitle } = useSidebarLayout();
+    const {
+        form,
+        state,
+        actions
+    } = useProjectsPagePresenter();
 
     useEffect(() => {
         setTitle("Проекты")
-    }, [setTitle])
+    }, [setTitle]);
 
     return (
         <div>
             <header className="flex justify-between w-full content-center items-center">
-                <form onSubmit={handleSearchSubmit} className="flex gap-[50px]">
+                <form onSubmit={actions.handleSearchSubmit} className="flex gap-[50px]">
                     <Input 
                         type="search" 
                         className="w-[400px] h-11 !rounded-4xl" 
@@ -132,7 +53,7 @@ const ProjectsPage = () => {
                 </form>
                 
                 <Button 
-                    onClick={handleOpenModal}
+                    onClick={actions.handleOpenModal}
                     type="button" 
                     className="w-[200px] flex justify-between content-center gap-5"
                 >
@@ -140,29 +61,32 @@ const ProjectsPage = () => {
                 </Button>
             </header>
 
+            {/* Список проектов */}
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.map((project) => (
+                {state.projects.map((project) => (
                     <ProjectItem
                         key={project.id}
                         project={project}
-                        onEdit={handleOpenEditModal}
-                        onDelete={handleOpenDeleteModal}
+                        onEdit={actions.handleOpenEditModal}
+                        onDelete={actions.handleOpenDeleteModal}
+                        onContextMenu={actions.showContextMenuHandle}
                     />
                 ))}
             </div>
 
-            {visible && modalId === 'create-project-modal' && (
+            {/* Модалка создания проекта */}
+            {state.visible && state.modalId === 'create-project-modal' && (
                 <Modal 
                     title="Создание проекта" 
-                    onClose={handleCloseModal} 
-                    id={modalId}
+                    onClose={actions.handleCloseModal} 
+                    id={state.modalId}
                 >
                     <div className="flex flex-col gap-6 p-1">
                         <div className="flex flex-col gap-2">
                             <Input
                                 type="text"
-                                value={projectName}
-                                onChange={(e) => setProjectName(e.target.value)}
+                                value={form.projectName}
+                                onChange={(e) => form.setProjectName(e.target.value)}
                                 placeholder="Название"
                                 className="w-full h-11"
                                 autoFocus
@@ -171,8 +95,8 @@ const ProjectsPage = () => {
 
                         <div className="flex flex-col gap-2">
                             <textarea
-                                value={projectDescription}
-                                onChange={(e) => setProjectDescription(e.target.value)}
+                                value={form.projectDescription}
+                                onChange={(e) => form.setProjectDescription(e.target.value)}
                                 placeholder="Описание"
                                 className="
                                     w-full 
@@ -192,15 +116,15 @@ const ProjectsPage = () => {
                         <div className="flex justify-between gap-3 pt-4">
                             <Button
                                 type="button"
-                                onClick={handleCancel}
+                                onClick={actions.handleCancel}
                                 outline
                             >
                                 Отмена
                             </Button>
                             <Button
                                 type="button"
-                                onClick={handleCreateProject}
-                                disabled={isCreateDisabled}
+                                onClick={actions.handleCreateProject}
+                                disabled={state.isCreateDisabled}
                             >
                                 Создать
                             </Button>
@@ -209,19 +133,20 @@ const ProjectsPage = () => {
                 </Modal>
             )}
 
-            {visible && modalId === 'edit-project-modal' && (
+            {/* Модалка редактирования проекта */}
+            {state.visible && state.modalId === 'edit-project-modal' && (
                 <Modal 
                     title="Изменение проекта" 
-                    onClose={handleCloseModal} 
-                    id={modalId}
+                    onClose={actions.handleCloseModal} 
+                    id={state.modalId}
                 >
                     <div className="flex flex-col gap-6 p-1">
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">Название</label>
                             <Input
                                 type="text"
-                                value={editProjectName}
-                                onChange={(e) => setEditProjectName(e.target.value)}
+                                value={form.editProjectName}
+                                onChange={(e) => form.setEditProjectName(e.target.value)}
                                 placeholder="Название"
                                 className="w-full h-11"
                                 autoFocus
@@ -231,8 +156,8 @@ const ProjectsPage = () => {
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-medium text-gray-700">Описание</label>
                             <textarea
-                                value={editProjectDescription}
-                                onChange={(e) => setEditProjectDescription(e.target.value)}
+                                value={form.editProjectDescription}
+                                onChange={(e) => form.setEditProjectDescription(e.target.value)}
                                 placeholder="Описание"
                                 className="
                                     w-full 
@@ -252,15 +177,15 @@ const ProjectsPage = () => {
                         <div className="flex justify-between gap-3 pt-4">
                             <Button
                                 type="button"
-                                onClick={handleCancel}
+                                onClick={actions.handleCancel}
                                 outline
                             >
                                 Отмена
                             </Button>
                             <Button
                                 type="button"
-                                onClick={handleEditProject}
-                                disabled={isEditDisabled}
+                                onClick={actions.handleEditProject}
+                                disabled={state.isEditDisabled}
                             >
                                 Сохранить
                             </Button>
@@ -269,29 +194,30 @@ const ProjectsPage = () => {
                 </Modal>
             )}
 
-            {visible && modalId === 'delete-project-modal' && (
+            {/* Модалка удаления проекта */}
+            {state.visible && state.modalId === 'delete-project-modal' && (
                 <Modal 
                     title="Удаление проекта" 
-                    onClose={handleCloseModal} 
-                    id={modalId}
+                    onClose={actions.handleCloseModal} 
+                    id={state.modalId}
                 >
                     <div className="flex flex-col gap-6 p-1">
                         <div className="text-center">
                             <p className="text-gray-500 text-sm">
-                                Вы точно хотите удалить проект <span className="font-semibold">"{projectToDelete?.name}"</span>
+                                Вы точно хотите удалить проект <span className="font-semibold">"{state.projectToDelete?.name}"</span>
                             </p>
                         </div>
                         <div className="flex justify-between gap-3 pt-4">
                             <Button
                                 type="button"
-                                onClick={handleCancel}
+                                onClick={actions.handleCancel}
                                 outline
                             >
                                 Отмена
                             </Button>
                             <Button
                                 type="button"
-                                onClick={handleDeleteProject}
+                                onClick={actions.handleDeleteProject}
                             >
                                 Удалить
                             </Button>

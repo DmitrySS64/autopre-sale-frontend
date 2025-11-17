@@ -8,9 +8,10 @@ interface ProjectItemProps {
     };
     onEdit: (project: { id: string; name: string; description: string }) => void;
     onDelete: (projectId: string, projectName: string) => void;
+    onContextMenu: (e: React.MouseEvent, project: { id: string; name: string; description: string }) => void;
 }
 
-export const ProjectItem = ({ project, onEdit, onDelete }: ProjectItemProps) => {
+export const ProjectItem = ({ project, onEdit, onDelete, onContextMenu }: ProjectItemProps) => {
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
     const toggleDropdown = (e: React.MouseEvent) => {
@@ -28,11 +29,20 @@ export const ProjectItem = ({ project, onEdit, onDelete }: ProjectItemProps) => 
         setDropdownOpen(false);
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        onContextMenu(e, project);
+    };
+
     return (
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm relative">
+        <div 
+            className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm relative"
+            onContextMenu={handleContextMenu}
+        >
             <div className="flex justify-between items-start mb-3">
                 <h3 className="text-lg font-semibold text-gray-900 pr-8">{project.name}</h3>
                 
+                {/* Кнопка с тремя точками */}
                 <div className="relative">
                     <svg 
                         onClick={toggleDropdown}
@@ -43,6 +53,7 @@ export const ProjectItem = ({ project, onEdit, onDelete }: ProjectItemProps) => 
                         <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                     </svg>
 
+                    {/* Выпадающее меню */}
                     {dropdownOpen && (
                         <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
                             <button
