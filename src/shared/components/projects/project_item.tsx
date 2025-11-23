@@ -40,10 +40,10 @@ export const ProjectItem = ({ project, onEdit, onDelete, onContextMenu }: Projec
             onContextMenu={handleContextMenu}
         >
             <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 pr-8">{project.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 pr-8 break-words">{project.name}</h3>
                 
                 {/* Кнопка с тремя точками */}
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                     <svg 
                         onClick={toggleDropdown}
                         className="w-5 h-5 cursor-pointer" 
@@ -74,7 +74,7 @@ export const ProjectItem = ({ project, onEdit, onDelete, onContextMenu }: Projec
                     )}
                 </div>
             </div>
-            <p className="text-gray-600 text-sm">{project.description}</p>
+            <p className="text-gray-600 text-sm break-words">{project.description}</p>
         </div>
     );
 };
