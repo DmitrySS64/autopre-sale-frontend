@@ -8,7 +8,7 @@ import {ELocalStorageKeys} from "@shared/enum/storage";
 //import {CookieService} from "@shared/services/cookie/CookieService.ts";
 //import {ECookieKey} from "@shared/services/cookie/ECookieKey.ts";
 
-const isStub: boolean = false
+const isStub: boolean = true
 
 const stubUser: IRegisterDto = {
     user: {
