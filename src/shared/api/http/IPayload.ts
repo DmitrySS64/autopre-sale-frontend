@@ -7,7 +7,8 @@ interface IParamsPayload extends IHeadersPayload {
 }
 
 interface IBodyPayload extends IParamsPayload {
-    body?: unknown
+    body?: unknown,
+    responseType?: string,
 }
 
 export type { IParamsPayload, IBodyPayload }

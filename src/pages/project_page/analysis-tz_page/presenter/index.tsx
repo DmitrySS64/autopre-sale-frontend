@@ -1,34 +1,150 @@
 import {useSidebarLayout} from "@widgets/sidebar/case/context";
-import React, {type ChangeEvent, useCallback, useEffect, useState} from "react";
+import React, {type ChangeEvent, useCallback, useEffect, useRef, useState} from "react";
 import {useAnalysisPageMutation, useAnalysisPageRequest} from "@pages/project_page/analysis-tz_page/request";
 import type {ITableRowProps} from "@shared/components/table/interface";
 import {useContextMenu} from "@widgets/context_menu/use-case";
 import {useModal} from "@widgets/modal/use-case";
 import {BacklogDeleteRowModal} from "@pages/project_page/analysis-tz_page/modal";
-import {timeout} from "es-toolkit";
+import type {IBacklogDTO, ITableFieldPropsDto, ITableRowPropsDto} from "@entities/project/analysis_tz/interface";
 
-const useAnalysisTZPagePresenter = () => {
+const useAnalysisTZPagePresenter = (projectId: string) => {
     const {setTitle} = useSidebarLayout()
-    const {data} = useAnalysisPageRequest()
-    const {mutate} = useAnalysisPageMutation()
+    const {data} = useAnalysisPageRequest({projectId, enabled: true})
+    const {uploadTZ, saveBacklog, downloadBacklog} = useAnalysisPageMutation()
     const {showContextMenu} = useContextMenu()
     const {showModal, closeModal} = useModal()
-    const [selectedFile, setSelectedFile] = useState<File|null>(null);
+
+    const [haveDocument, setHaveDocument] = useState(false)
+    const [fileName, setFileName] = useState<string | null>(null);
+    const [fileUrl, setFileUrl] = useState<string | null>(null);
+    const [tableData, setTableData] = useState<ITableRowProps[]>([]);
+    const [initialData, setInitialData] = useState<ITableRowProps[]>([]);
+    const [hasChanges, setHasChanges] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+
+    const lastSavedDataRef = useRef<ITableRowProps[]>([]);
+
+    const tableRowToDto = useCallback((row: ITableRowProps): ITableRowPropsDto => {
+        return {
+            workNumber: row.workNumber,
+            level: row.level,
+            rowValues: row.rowValues as ITableFieldPropsDto[],
+            children: row.children?.map(child => tableRowToDto(child)),
+        }
+    }, [])
+
+    const dtoToTableRow = useCallback((dto: ITableRowPropsDto, index: number = 0): ITableRowProps => {
+        return {
+            rowIndex: index,
+            workNumber: dto.workNumber,
+            level: dto.level,
+            rowValues: dto.rowValues,
+            children: dto.children?.map((child, idx) => dtoToTableRow(child, idx)),
+            canOpen: !!dto.children && dto.children.length > 0,
+            isOpen: false,
+            onRowClick: undefined,
+            onCellDoubleClick: undefined,
+            onContextMenu: undefined,
+            onToggle: undefined,
+            editingCell: null,
+            editingValue: '',
+            onCellEdit: undefined,
+            onCellEditComplete: undefined,
+            onDragStart: undefined,
+            onDragOver: undefined,
+            onDragLeave: undefined,
+            onDrop: undefined,
+            isDragOver: false,
+            dropPosition: null
+        };
+    }, []);
+
+    const tableDataToDto = useCallback((data: ITableRowProps[]): ITableRowPropsDto[] => {
+        return data.map(row => tableRowToDto(row));
+    }, [tableRowToDto]);
+
+    const dtoToTableData = useCallback((dto: ITableRowPropsDto[]): ITableRowProps[] => {
+        return dto.map((item, index) => dtoToTableRow(item, index));
+    }, [dtoToTableRow]);
+
+    // Обработка ответа с данными бэклога
+    const processBacklogResponse = useCallback((response: IBacklogDTO) => {
+        const hasDoc = !!(response.fileName && response.fileUrl);
+        setHaveDocument(hasDoc);
+        setFileName(response.fileName || null);
+        setFileUrl(response.fileUrl || null);
+
+        if (response.backlogData && response.backlogData.length > 0) {
+            const tableDataFromDto = dtoToTableData(response.backlogData);
+            setInitialData(tableDataFromDto);
+            setTableData(tableDataFromDto);
+            lastSavedDataRef.current = tableDataFromDto;
+        }
+    }, [dtoToTableData]);
 
     useEffect(() => {
         setTitle('Анализ ТЗ')
-    }, [setTitle]);
+        if (data) {
+            processBacklogResponse(data);
+        }
+    }, [setTitle, data, processBacklogResponse]);
 
-    const haveDoc = false;
+    // Сравнение данных для определения изменений
+    const checkForChanges = useCallback((currentData: ITableRowProps[]) => {
+        const currentDto = tableDataToDto(currentData);
+        const lastSavedDto = tableDataToDto(lastSavedDataRef.current);
 
-    const tableData: ITableRowProps[] = [
+        const hasChanges = JSON.stringify(currentDto) !== JSON.stringify(lastSavedDto);
+        setHasChanges(hasChanges);
+        return hasChanges;
+    }, [tableDataToDto]);
+
+    // Обработчик изменений таблицы
+    const handleTableDataChange = useCallback((newData: ITableRowProps[]) => {
+        setTableData(newData);
+        checkForChanges(newData);
+    }, [checkForChanges]);
+
+    useEffect(()=>{
+        console.log(tableData)
+    }, [tableData]);
+
+    useEffect(()=>setInitialData([
         {
             workNumber: '1',
             rowValues: [
                 {value: "Значение 1"},{value: "Значение 2"},
             ]
         }
-    ]
+    ]), [])
+
+    // Скачивание файла с использованием репозитория
+    const handleDownload = useCallback(async (format: 'xlsx' | 'csv') => {
+        const downloadData = {
+            projectId,
+            format
+        };
+
+        try {
+            const blob = await downloadBacklog(downloadData);
+
+            // Создаем ссылку для скачивания
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `backlog.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            console.log(`Backlog downloaded successfully in ${format} format`);
+        } catch (error) {
+            console.error('Error during download:', error);
+        }
+    }, [projectId, downloadBacklog]);
+
 
     const downloadHandle = useCallback((e: React.MouseEvent) => {
         showContextMenu({
@@ -36,11 +152,11 @@ const useAnalysisTZPagePresenter = () => {
                 {
                     id: "xlsx",
                     label: "XLSX",
-                    onClick: () => {}
+                    onClick: () => handleDownload('xlsx')
                 },{
                     id: "CSV",
                     label: "csv",
-                    onClick: () => {}
+                    onClick: () => handleDownload('csv')
                 }
             ],
             position: {
@@ -48,60 +164,94 @@ const useAnalysisTZPagePresenter = () => {
                 y: e.clientY
             }
         })
-    }, [showContextMenu])
+    }, [handleDownload, showContextMenu])
 
     
     const deleteRowHandle = useCallback(() => {
         showModal(BacklogDeleteRowModal())
     }, [showModal])
-    
-    const downloadModal = useCallback(() => {
-        return showModal({
-            canClose: false,
-            content: <>
-                Загрузка...
-            </>
-        })
-    }, [showModal])
 
-    const handleUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>)=>{
+    // Загрузка файла ТЗ с использованием репозитория
+    const handleUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault()
-        setSelectedFile(e.target.files?.[0] ?? null)
+        const file = e.target.files?.[0] ?? null
 
-        if (!selectedFile) return;
+        if (!file) return;
 
-        const formData = new FormData();
-        formData.append('file', selectedFile); // 'file' is the field name expected by your server
-
-        const modalId = downloadModal()
+        const modalId = showModal({
+            canClose: false,
+            content: <>Загрузка файла...</>
+        });
 
         try {
-            await timeout(1000 * 60);
-            const response = await fetch('/api/upload', { // Replace with your server endpoint
-                method: 'POST',
-                body: formData,
-            });
+            const uploadData = {
+                projectId,
+                file
+            };
 
-            if (response.ok) {
+            const response = await uploadTZ(uploadData);
+
+            if (response.success && response.backlogData) {
+                const backlogResponse: IBacklogDTO = {
+                    fileName: response.fileName,
+                    fileUrl: response.fileUrl,
+                    backlogData: response.backlogData
+                };
+                processBacklogResponse(backlogResponse);
                 console.log('File uploaded successfully!');
-                // Handle success (e.g., clear selected file, show success message)
             } else {
-                console.error('File upload failed.');
-                // Handle error
+                console.error('File upload failed:', response.error);
             }
+
         } catch (error) {
             console.error('Error during file upload:', error);
+        } finally {
+            closeModal(modalId);
         }
+    }, [projectId, uploadTZ, showModal, closeModal, processBacklogResponse])
 
-        closeModal(modalId)
-    }, [closeModal, downloadModal, selectedFile])
+    // Сохранение изменений с использованием репозитория
+    const saveChanges = useCallback(async () => {
+        if (!hasChanges || isSaving) return;
+
+        setIsSaving(true);
+
+        try {
+            const backlogDataDto = tableDataToDto(tableData);
+            const saveData = {
+                projectId,
+                backlogData: backlogDataDto
+            };
+
+            const response = await saveBacklog(saveData);
+
+            if (response.status === "OK") {
+                lastSavedDataRef.current = [...tableData];
+                setHasChanges(false);
+                console.log('Changes saved successfully!');
+            } else {
+                console.error('Save failed:', response.message);
+            }
+        } catch (error) {
+            console.error('Error during save:', error);
+        } finally {
+            setIsSaving(false);
+        }
+    }, [hasChanges, isSaving, projectId, tableData, tableDataToDto, saveBacklog]);
 
     return {
-        haveDoc,
+        haveDoc: haveDocument,
+        fileName,
+        fileUrl,
+        initialTableData: initialData,
         tableData,
+        updateTableData: handleTableDataChange,
         downloadHandle,
         deleteRowHandle,
-        handleUpload
+        handleUpload,
+        hasChanges,
+        isSaving,
+        saveChanges
     }
 }
 
