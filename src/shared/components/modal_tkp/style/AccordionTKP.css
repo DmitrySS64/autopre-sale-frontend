@@ -1,5 +1,5 @@
 .accordion-tkp {
-  font-family: 'Arial', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   background: #fff;
 }
 
@@ -17,17 +17,15 @@
   align-items: center;
   padding: 15px 20px;
   cursor: pointer;
-  background: #f5f5f5;
+  background: rgba(243, 239, 237, 1);
 }
 
-.accordion-item-header:hover {
-  background: #f5f5f5;
-}
+
 
 .accordion-item-title {
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .accordion-icon {
@@ -53,6 +51,7 @@
 
 .content-text {
   font-size: 14px;
+  font-weight: 400;
   line-height: 1.4;
   padding: 4px 0;
   cursor: pointer;

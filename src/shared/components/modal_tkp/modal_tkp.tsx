@@ -39,9 +39,6 @@ export const ModalTkp = ({ isOpen, onClose, children }) => {
       onClick={handleBackdropClick}
     >
       <div className="modal-container">
-        <button className="modal-close" onClick={handleClose}>
-          ×
-        </button>
         <div className="modal-content">
           {children}
         </div>
