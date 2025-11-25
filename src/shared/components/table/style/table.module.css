@@ -144,10 +144,11 @@ table{
         }
 
         tr {
-            pointer-events: none;
+            &:hover{
+                cursor: auto;
+                background-color: transparent;
+            }
         }
-
-
     }
 }
 

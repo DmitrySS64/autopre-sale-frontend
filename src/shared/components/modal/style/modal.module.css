@@ -18,6 +18,11 @@
     display: inline-flex;
     flex-direction: column;
     gap: 30px;
+
+    &::backdrop{
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+
     & > h1{
         text-align: center;
         font-size: 26px;

@@ -36,27 +36,27 @@
     border-radius: 3px;
     padding: 10px 15px;
     gap: 10px;
-    color: var(--color-black);
+    color: var(--color-text-dark);
     user-select: none;
     cursor: pointer;
     .icon{
         width: 24px;
         height: 24px;
-        color: var(--color-gray-500);
+        color: var(--color-dark-grey);
     }
 
     &:hover{
-        color: var(--color-orange-400);
+        color: var(--color-accent2);
         .icon{
-            color: var(--color-orange-400);
+            color: var(--color-accent2);
         }
     }
 
     &[data-status = active] {
-        background-color: var(--color-orange-200);
-        color: var(--color-orange-500);
+        background-color: var(--color-background2);
+        color: var(--color-accent2);
         .icon{
-            color: var(--color-orange-500);
+            color: var(--color-accent2);
         }
     }
 }

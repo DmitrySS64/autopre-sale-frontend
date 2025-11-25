@@ -1,0 +1,29 @@
+.row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+}
+
+.backlog {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.modal {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+}

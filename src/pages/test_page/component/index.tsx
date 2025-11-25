@@ -2,16 +2,20 @@ import {Button} from "@shared/components/form/button";
 import {Input} from "@shared/components/form/input/component";
 import {useTestPagePresenter} from "@pages/test_page/case/presenter";
 import {BacklogTable, StaticTable} from "@shared/components/table";
+import type {FormEvent} from "react";
 
 const TestPage = () => {
     const {
         form,
-        buttonOnClick,
         showModalHandle,
         stateTableData,
         showContextMenuHandel
     } = useTestPagePresenter()
 
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        await form.handleSubmit()
+    }
 
     return (
         <div className={'flex flex-col gap-2'}>
@@ -31,7 +35,7 @@ const TestPage = () => {
             </div>
 
             <div className={'flex gap-2'}>
-                <form className={'flex flex-col gap-2'}>
+                <form className={'flex flex-col gap-2'} onSubmit={handleSubmit}>
                     <form.AppField name={'input'}>
                         {(field) => (
                             <field.TextField
@@ -42,10 +46,7 @@ const TestPage = () => {
                         )}
                     </form.AppField>
                     <form.AppForm>
-                        <form.SubscribeButton
-                            type="submit"
-                            onClick={buttonOnClick}
-                        >
+                        <form.SubscribeButton>
                             Кнопка
                         </form.SubscribeButton>
                     </form.AppForm>

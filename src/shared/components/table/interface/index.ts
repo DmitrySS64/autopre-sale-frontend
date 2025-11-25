@@ -12,6 +12,7 @@ interface ITableFieldProps {
 
 interface ITableProps {
     values?: ITableRowProps[];
+    onDataChange?: (data: ITableRowProps[]) => void;
 }
 
 interface IStaticTableRow {

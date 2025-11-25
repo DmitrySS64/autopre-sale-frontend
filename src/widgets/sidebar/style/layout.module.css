@@ -22,6 +22,13 @@
     border-radius: 8px;
     padding: 40px;
     overflow: auto;
+
+    h2 {
+        font-size: 24px;
+        line-height: 100%;
+        font-weight: 500;
+        letter-spacing: 0;
+    }
 }
 .title {
     font-size: 36px;

@@ -1,16 +1,17 @@
 import Icon from "@mdi/react";
 import {ICON_PATH} from "@shared/components/images/icons";
 import type {ITableProps, ITableRowProps} from "../interface";
-import React from "react";
+import React, {useEffect} from "react";
 import TableRow from './tableRow'
 import useTablePresenter from "@shared/components/table/presenter";
 
 
 const BacklogTable = ({
-    values
+    values,
+    onDataChange
 }: ITableProps) => {
     const {
-        data: { filteredData, searchValues },
+        data: { filteredData, searchValues, tableData },
         editing: {
             editingCell,
             editingValue,
@@ -34,6 +35,17 @@ const BacklogTable = ({
             },
         }
     } = useTablePresenter(values);
+
+    useEffect(() => {
+        console.log(values);
+        console.log('Данные обновлены');
+    }, [values]);
+
+    useEffect(() => {
+        if (onDataChange) {
+            onDataChange(tableData);
+        }
+    }, [tableData, onDataChange]);
 
     const renderRows = (data: ITableRowProps[], parentLevel: string = '1') => {
         return data.map((item, index) => {

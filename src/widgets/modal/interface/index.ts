@@ -3,17 +3,19 @@ import type { ReactNode } from 'react'
 interface IModalShowParams {
     content: ReactNode
     title?: string
+    canClose?: boolean
 }
 
 interface IModalContextProps {
-    showModal: (params: IModalShowParams) => void
+    showModal: (params: IModalShowParams) => string
     closeModal: (id: string) => void
 }
 
 interface IModal {
     id: string
     title?: string
-    content: ReactNode
+    content: ReactNode,
+    canClose?: boolean
 }
 
 export type { IModalShowParams, IModalContextProps, IModal }
