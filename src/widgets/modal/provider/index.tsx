@@ -16,8 +16,12 @@ const ModalProvider = ({children}: PropsWithChildren) => {
         setModals(prev => prev.filter(modal => modal.id !== id))
     }, [])
 
+    const closeAllModals = useCallback(() => {
+        setModals([])
+    }, [])
+
     return (
-        <ModalContext.Provider value={{showModal, closeModal}}>
+        <ModalContext.Provider value={{showModal, closeModal, closeAllModals}}>
             {children}
             {modals.map(({id, content, title, canClose}) => (
                 <Modal

@@ -1,10 +1,10 @@
 import {useQuery, type UseQueryResult} from "@tanstack/react-query";
-import type {IBacklogDTO} from "@entities/project/analysis_tz/interface";
+import type {IAnalysisTZResponse} from "@entities/project/analysis_tz/interface";
 import {AnalysisRepository} from "@entities/project/analysis_tz/api/AnalysisRepository.ts";
 import {HTTP_APP_SERVICE} from "@shared/services/http/HttpAppService.ts";
 import {EQueryKeys} from "@shared/enum/query";
 
-type IAnalysisPageRequestResult = UseQueryResult<IBacklogDTO, Error>
+type IAnalysisPageRequestResult = UseQueryResult<IAnalysisTZResponse, Error>
 
 interface IAnalysisPageRequestOptions {
     enabled?: boolean;

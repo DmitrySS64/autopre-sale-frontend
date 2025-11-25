@@ -9,6 +9,7 @@ interface IModalShowParams {
 interface IModalContextProps {
     showModal: (params: IModalShowParams) => string
     closeModal: (id: string) => void
+    closeAllModals: () => void
 }
 
 interface IModal {
