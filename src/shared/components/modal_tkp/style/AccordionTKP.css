@@ -11,6 +11,10 @@
   border-bottom: 1px solid #ddd;
 }
 
+.accordion-item-header:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
 .accordion-item-header {
   display: flex;
   justify-content: space-between;
@@ -36,6 +40,11 @@
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease;
+  border: 1px solid #B3B3B3;
+}
+
+.accordion-item-content:last-child {
+  border: none;
 }
 
 .accordion-item.active .accordion-item-content {
