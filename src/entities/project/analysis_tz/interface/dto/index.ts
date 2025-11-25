@@ -12,7 +12,13 @@ interface ITableRowPropsDto  {
 interface IBacklogDTO {
     fileName?: string;
     fileUrl?: string;
-    backlogData: ITableRowPropsDto[];
+    backlogData?: ITableRowPropsDto[];
+}
+
+interface IProjectInfoDTO {
+    projectId: string;
+    projectName: string;
+    hasAnalysis: boolean;
 }
 
 interface ISaveResponseDTO {
@@ -26,4 +32,11 @@ interface IUploadResponseDTO {
     error?: string;
 }
 
-export type {IBacklogDTO, ISaveResponseDTO, IUploadResponseDTO, ITableRowPropsDto, ITableFieldPropsDto}
+export type {
+    IBacklogDTO,
+    ISaveResponseDTO,
+    IUploadResponseDTO,
+    ITableRowPropsDto,
+    ITableFieldPropsDto,
+    IProjectInfoDTO
+}

@@ -32,14 +32,15 @@ const AnalysisPage = () => {
         handleUpload,
         hasChanges,
         isSaving,
-        saveChanges
+        saveChanges,
+        allowedFileTypes
     } = useAnalysisTZPagePresenter(projectId)
 
     if (!haveDoc)
         return (
             <div className={style.row}>
                 <h2>В проекте нет документа для анализа</h2>
-                <InputFile onChange={handleUpload}>
+                <InputFile onChange={handleUpload} accept={allowedFileTypes.join(',')}>
                     <Icon path={ICON_PATH.UPLOAD} size={1}/>
                     Загрузить
                 </InputFile>
@@ -84,13 +85,14 @@ const AnalysisPage = () => {
                         </Button>
                     </div>
                 </div>
-                <div className={style.row}>
-                    {hasChanges && (
+                {hasChanges && (
+                    <div className={style.row}>
                         <span className={style.unsavedChanges}>
                             Есть несохраненные изменения
                         </span>
-                    )}
-                </div>
+                    </div>
+                )}
+
                 <BacklogTable
                     values={initialTableData}
                     onDataChange={updateTableData}

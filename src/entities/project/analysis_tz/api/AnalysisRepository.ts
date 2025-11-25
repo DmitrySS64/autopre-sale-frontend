@@ -1,5 +1,5 @@
 import type {
-    IBacklogDTO,
+    IAnalysisTZResponse,
     ISaveBacklogResponse,
     IUploadFileResponse
 } from "@entities/project/analysis_tz/interface";
@@ -13,7 +13,9 @@ import type {
 
 const isStub = true
 
-const stubBacklogData: IBacklogDTO = {
+const stubBacklogData: IAnalysisTZResponse = {
+    projectId: "1",
+    projectName: "Тестовый проект",
     fileName: "technical_specification.docx",
     fileUrl: "/api/files/technical_specification.docx",
     backlogData: [
@@ -38,15 +40,34 @@ const stubBacklogData: IBacklogDTO = {
     ]
 }
 
+// Заглушка для проекта без анализа
+const stubProjectWithoutAnalysis: IAnalysisTZResponse = {
+    projectId: "2",
+    projectName: "Проект без ТЗ",
+    // fileName и fileUrl отсутствуют
+    // backlogData отсутствует
+}
 
 class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository {
-    public async getBacklogData(projectId: string): Promise<IBacklogDTO> {
+    public async getBacklogData(projectId: string): Promise<IAnalysisTZResponse> {
         if (isStub) {
             await new Promise(resolve => setTimeout(resolve, 500)); // Имитация задержки сети
-            return Promise.resolve(stubBacklogData);
+
+            if (projectId === "1") {
+                return Promise.resolve(stubBacklogData);
+            } else if (projectId === "2") {
+                return Promise.resolve(stubProjectWithoutAnalysis);
+            } else {
+                // Проект без ТЗ и бэклога
+                return Promise.resolve({
+                    projectId,
+                    projectName: `Проект ${projectId}`,
+                    // fileName, fileUrl, backlogData отсутствуют
+                });
+            }
         }
 
-        return await this._httpService.get<IBacklogDTO>(`/api/projects/${projectId}/backlog`);
+        return await this._httpService.get<IAnalysisTZResponse>(`/api/projects/${projectId}/analysis`);
     }
 
     public async uploadTZFile(port: IUploadFilePort): Promise<IUploadFileResponse> {

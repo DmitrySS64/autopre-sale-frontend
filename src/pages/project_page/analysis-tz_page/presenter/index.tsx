@@ -6,6 +6,15 @@ import {useContextMenu} from "@widgets/context_menu/use-case";
 import {useModal} from "@widgets/modal/use-case";
 import {BacklogDeleteRowModal} from "@pages/project_page/analysis-tz_page/modal";
 import type {IBacklogDTO, ITableFieldPropsDto, ITableRowPropsDto} from "@entities/project/analysis_tz/interface";
+import {useAlert} from "@widgets/alert/use-case";
+import {EAlertType} from "@shared/enum/alert";
+
+const ALLOWED_FILE_TYPES = ['.doc', '.docx', '.pdf'];
+const ALLOWED_MIME_TYPES = [
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/pdf'
+];
 
 const useAnalysisTZPagePresenter = (projectId: string) => {
     const {setTitle} = useSidebarLayout()
@@ -13,6 +22,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
     const {uploadTZ, saveBacklog, downloadBacklog} = useAnalysisPageMutation()
     const {showContextMenu} = useContextMenu()
     const {showModal, closeModal} = useModal()
+    const {showAlert} = useAlert()
 
     const [haveDocument, setHaveDocument] = useState(false)
     const [fileName, setFileName] = useState<string | null>(null);
@@ -23,6 +33,15 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
     const lastSavedDataRef = useRef<ITableRowProps[]>([]);
+
+    // Проверка формата файла
+    const isValidFileType = useCallback((file: File): boolean => {
+        const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+        const isExtensionValid = ALLOWED_FILE_TYPES.includes(fileExtension || '');
+        const isMimeTypeValid = ALLOWED_MIME_TYPES.includes(file.type);
+
+        return isExtensionValid || isMimeTypeValid;
+    }, []);
 
     const tableRowToDto = useCallback((row: ITableRowProps): ITableRowPropsDto => {
         return {
@@ -139,11 +158,13 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            console.log(`Backlog downloaded successfully in ${format} format`);
+            showAlert(`Backlog downloaded successfully in ${format} format`)
+
         } catch (error) {
+
             console.error('Error during download:', error);
         }
-    }, [projectId, downloadBacklog]);
+    }, [projectId, downloadBacklog, showAlert]);
 
 
     const downloadHandle = useCallback((e: React.MouseEvent) => {
@@ -178,6 +199,10 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
 
         if (!file) return;
 
+        if (!isValidFileType(file)){
+            showAlert('Неподдерживаемый формат файла. Поддерживаются: PDF, DOC, DOCX', EAlertType.WARNING)
+        }
+
         const modalId = showModal({
             canClose: false,
             content: <>Загрузка файла...</>
@@ -198,9 +223,10 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
                     backlogData: response.backlogData
                 };
                 processBacklogResponse(backlogResponse);
-                console.log('File uploaded successfully!');
+                showAlert('File uploaded successfully!')
             } else {
                 console.error('File upload failed:', response.error);
+                showAlert(['File upload failed:', response.error].join('\n'), EAlertType.ERROR);
             }
 
         } catch (error) {
@@ -208,7 +234,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
         } finally {
             closeModal(modalId);
         }
-    }, [projectId, uploadTZ, showModal, closeModal, processBacklogResponse])
+    }, [isValidFileType, showModal, showAlert, projectId, uploadTZ, processBacklogResponse, closeModal])
 
     // Сохранение изменений с использованием репозитория
     const saveChanges = useCallback(async () => {
@@ -228,16 +254,16 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
             if (response.status === "OK") {
                 lastSavedDataRef.current = [...tableData];
                 setHasChanges(false);
-                console.log('Changes saved successfully!');
+                showAlert('Изменения сохранены', EAlertType.SUCCESS)
             } else {
-                console.error('Save failed:', response.message);
+                showAlert(['Save failed:', response.message].join('\n'), EAlertType.ERROR);
             }
         } catch (error) {
             console.error('Error during save:', error);
         } finally {
             setIsSaving(false);
         }
-    }, [hasChanges, isSaving, projectId, tableData, tableDataToDto, saveBacklog]);
+    }, [hasChanges, isSaving, tableDataToDto, tableData, projectId, saveBacklog, showAlert]);
 
     return {
         haveDoc: haveDocument,
@@ -251,7 +277,8 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
         handleUpload,
         hasChanges,
         isSaving,
-        saveChanges
+        saveChanges,
+        allowedFileTypes: ALLOWED_FILE_TYPES
     }
 }
 
