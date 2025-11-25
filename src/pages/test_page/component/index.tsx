@@ -2,10 +2,13 @@ import {Button} from "@shared/components/form/button";
 import {Input} from "@shared/components/form/input/component";
 import {useTestPagePresenter} from "@pages/test_page/case/presenter";
 import {useSidebarLayout} from "@widgets/sidebar/case/context";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useModal} from "@widgets/modal/use-case";
 import {useContextMenu} from "@widgets/context_menu/use-case";
 import {ICON_PATH} from "@shared/components/images/icons";
+import { ModalTkp } from "@/shared/components/modal_tkp/modal_tkp";
+import ProjectModalContent from "@/shared/components/modal_tkp/component/ProjectModalContent";
+import AccordionTKP from "@/shared/components/modal_tkp/component/AccordionTKP";
 
 
 const TestPage = () => {
@@ -13,6 +16,8 @@ const TestPage = () => {
     const {setTitle} = useSidebarLayout()
     const {showModal} = useModal()
     const {showContextMenu} = useContextMenu()
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     useEffect(() => {
         setTitle("Тестовая страница")
     }, [setTitle])
@@ -98,6 +103,18 @@ const TestPage = () => {
                 <Input placeholder={'Введите значение'}/>
 
                 <Input placeholder={'Введите значение'} disabled/>
+            </div>
+            <div>
+                <Button onClick={() => setIsModalOpen(true)}>
+                    Показать шаблоны
+                </Button>
+
+                <ModalTkp 
+                    isOpen={isModalOpen} 
+                    onClose={() => setIsModalOpen(false)}
+                >
+                    <AccordionTKP />
+                </ModalTkp>
             </div>
         </div>
 
