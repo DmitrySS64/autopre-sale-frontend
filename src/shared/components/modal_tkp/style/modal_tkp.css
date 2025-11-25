@@ -22,14 +22,15 @@
 .modal-container {
   background: white;
   border-radius: 12px;
-  width: 90%;
-  max-width: 1200px;
-  max-height: 90vh;
+  width: 100%;
+  max-width: 858px;
+  max-height: 366px;
   overflow-y: auto;
   position: relative;
   transform: translateY(50px);
   transition: transform 0.3s ease;
   border: 2px solid #B3B3B3;
+  scrollbar-width: none;
 }
 
 .modal-visible .modal-container {
