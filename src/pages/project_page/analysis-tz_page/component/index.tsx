@@ -1,13 +1,12 @@
 import {Button} from "@shared/components/form/button";
 import {BacklogTable, StaticTable} from "@shared/components/table";
 import style from '../style/analysis_page.module.css'
-import {Link, useParams} from "@tanstack/react-router";
+import {Link} from "@tanstack/react-router";
 import type {IStaticTableProps} from "@shared/components/table/interface";
 import {useAnalysisTZPagePresenter} from "@pages/project_page/analysis-tz_page/presenter";
 import Icon from "@mdi/react";
 import {ICON_PATH} from "@shared/components/images/icons";
 import {InputFile} from "@shared/components/form/input_file/component";
-import ERouterPath from "@shared/routes";
 
 const STATIC_TABLE_PROPS : IStaticTableProps = {
     columnWidths:[
@@ -19,8 +18,6 @@ const STATIC_TABLE_PROPS : IStaticTableProps = {
 }
 
 const AnalysisPage = () => {
-
-    const {projectId} = useParams({from: `/app${ERouterPath.ANALYSIS_PAGE}`})
 
     const {
         haveDoc,
@@ -34,7 +31,7 @@ const AnalysisPage = () => {
         isSaving,
         saveChanges,
         allowedFileTypes
-    } = useAnalysisTZPagePresenter(projectId)
+    } = useAnalysisTZPagePresenter()
 
     if (!haveDoc)
         return (

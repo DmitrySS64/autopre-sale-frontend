@@ -5,9 +5,17 @@ import type {ITableRowProps} from "@shared/components/table/interface";
 import {useContextMenu} from "@widgets/context_menu/use-case";
 import {useModal} from "@widgets/modal/use-case";
 import {BacklogDeleteRowModal} from "@pages/project_page/analysis-tz_page/modal";
-import type {IBacklogDTO, ITableFieldPropsDto, ITableRowPropsDto} from "@entities/project/analysis_tz/interface";
+import type {
+    IBacklogDTO,
+    ITableFieldPropsDto,
+    ITableRowPropsDto
+} from "@entities/project/analysis_tz/interface";
 import {useAlert} from "@widgets/alert/use-case";
 import {EAlertType} from "@shared/enum/alert";
+import {useUnsavedChanges} from "@shared/routes/hooks/useUnsavedChanges";
+import {useRouteBlocker} from "@shared/routes/hooks/useRouteBlocker";
+import {useProjectContext} from "@entities/project/api/useContext";
+
 
 const ALLOWED_FILE_TYPES = ['.doc', '.docx', '.pdf'];
 const ALLOWED_MIME_TYPES = [
@@ -16,9 +24,11 @@ const ALLOWED_MIME_TYPES = [
     'application/pdf'
 ];
 
-const useAnalysisTZPagePresenter = (projectId: string) => {
+const useAnalysisTZPagePresenter = () => {
+    const {state: projectState,} = useProjectContext()
+
     const {setTitle} = useSidebarLayout()
-    const {data} = useAnalysisPageRequest({projectId, enabled: true})
+    const {data} = useAnalysisPageRequest({projectId: projectState.projectId, enabled: true})
     const {uploadTZ, saveBacklog, downloadBacklog} = useAnalysisPageMutation()
     const {showContextMenu} = useContextMenu()
     const {showModal, closeModal} = useModal()
@@ -104,6 +114,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
     useEffect(() => {
         setTitle('Анализ ТЗ')
         if (data) {
+            setTitle(data.projectName)
             processBacklogResponse(data);
         }
     }, [setTitle, data, processBacklogResponse]);
@@ -128,19 +139,10 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
         console.log(tableData)
     }, [tableData]);
 
-    useEffect(()=>setInitialData([
-        {
-            workNumber: '1',
-            rowValues: [
-                {value: "Значение 1"},{value: "Значение 2"},
-            ]
-        }
-    ]), [])
-
     // Скачивание файла с использованием репозитория
     const handleDownload = useCallback(async (format: 'xlsx' | 'csv') => {
         const downloadData = {
-            projectId,
+            projectId: projectState.projectId,
             format
         };
 
@@ -164,7 +166,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
 
             console.error('Error during download:', error);
         }
-    }, [projectId, downloadBacklog, showAlert]);
+    }, [projectState, downloadBacklog, showAlert]);
 
 
     const downloadHandle = useCallback((e: React.MouseEvent) => {
@@ -210,7 +212,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
 
         try {
             const uploadData = {
-                projectId,
+                projectId: projectState.projectId,
                 file
             };
 
@@ -218,6 +220,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
 
             if (response.success && response.backlogData) {
                 const backlogResponse: IBacklogDTO = {
+
                     fileName: response.fileName,
                     fileUrl: response.fileUrl,
                     backlogData: response.backlogData
@@ -234,7 +237,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
         } finally {
             closeModal(modalId);
         }
-    }, [isValidFileType, showModal, showAlert, projectId, uploadTZ, processBacklogResponse, closeModal])
+    }, [isValidFileType, showModal, showAlert, projectState, uploadTZ, processBacklogResponse, closeModal])
 
     // Сохранение изменений с использованием репозитория
     const saveChanges = useCallback(async () => {
@@ -245,7 +248,7 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
         try {
             const backlogDataDto = tableDataToDto(tableData);
             const saveData = {
-                projectId,
+                projectId: projectState.projectId,
                 backlogData: backlogDataDto
             };
 
@@ -263,7 +266,12 @@ const useAnalysisTZPagePresenter = (projectId: string) => {
         } finally {
             setIsSaving(false);
         }
-    }, [hasChanges, isSaving, tableDataToDto, tableData, projectId, saveBacklog, showAlert]);
+    }, [hasChanges, isSaving, tableDataToDto, tableData, projectState, saveBacklog, showAlert]);
+
+    //useNavigationBlocker(hasChanges)
+    useUnsavedChanges(hasChanges)
+    useRouteBlocker(hasChanges)
+
 
     return {
         haveDoc: haveDocument,

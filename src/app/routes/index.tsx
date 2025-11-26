@@ -12,6 +12,7 @@ import {createProjectsPageRoute} from "@pages/projects_page/route";
 import {createAnalysisPageRoute} from "@pages/project_page/analysis-tz_page/route";
 import {createConstructorPageRoute} from "@pages/project_page/constructor-tcp_page/route";
 import {createAuthorizationPageRoute} from "@pages/sign-in/route";
+import {createProjectPageRoute} from "@pages/project_page/route"
 import type {IAuthState} from "@entities/user/auth/interface";
 import ERouterPath from "@shared/routes";
 
@@ -56,6 +57,7 @@ const sidebarRoute = createRoute({
 });
 
 const AuthRoute = createAuthorizationPageRoute(rootRoute);
+const ProjectRoute = createProjectPageRoute(sidebarRoute);
 
 const routeTree = rootRoute.addChildren([
     indexRoute,
@@ -63,8 +65,10 @@ const routeTree = rootRoute.addChildren([
     sidebarRoute.addChildren([
         createTestPageRoute(sidebarRoute),
         createProjectsPageRoute(sidebarRoute),
-        createAnalysisPageRoute(sidebarRoute),
-        createConstructorPageRoute(sidebarRoute),
+        ProjectRoute.addChildren([
+            createAnalysisPageRoute(ProjectRoute),
+            createConstructorPageRoute(ProjectRoute),
+        ])
     ])
 ])
 

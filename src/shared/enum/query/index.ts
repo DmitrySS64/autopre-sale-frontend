@@ -2,6 +2,7 @@ const ROOT_AUTH = "auth:"
 enum EQueryKeys {
     GET_ME = `${ROOT_AUTH}get-me`,
     ANALYSIS_TZ = `analysis:get-backlog`,
+    PROJECTS = 'projects:',
 }
 
 enum EMutationKeys {

@@ -1,15 +1,16 @@
-import {useSidebarLayout} from "@widgets/sidebar/case/context";
-import {useEffect} from "react";
+import {useProjectsPresenter} from "@pages/projects_page/presenter";
 
 const ProjectsPage = () => {
-    const {setTitle} = useSidebarLayout()
-    useEffect(() => {
-        setTitle("Проекты")
-    }, [setTitle])
+    const {projects, handleOpenProject} = useProjectsPresenter()
 
     return (
         <>
             Проекты
+            {projects.map((project) => (
+                <li>
+                    <ol onClick={() => handleOpenProject(project.id)}>{project.name}</ol>
+                </li>
+            ))}
         </>
     )
 }
