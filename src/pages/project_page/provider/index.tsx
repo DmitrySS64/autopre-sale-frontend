@@ -1,31 +1,7 @@
 // pages/project_page/contexts/ProjectContext.tsx
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-
-// Типы для данных проекта
-interface ProjectData {
-    id: string;
-    name: string;
-    description?: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-interface ProjectState {
-    projectId: string;
-    projectData: ProjectData | null;
-    isLoading: boolean;
-    error: string | null;
-}
-
-interface ProjectContextType {
-    state: ProjectState;
-    setProjectData: (data: ProjectData) => void;
-    setLoading: (loading: boolean) => void;
-    setError: (error: string | null) => void;
-    refreshProject: () => void;
-}
-
-const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
+import React, { useReducer, useEffect } from 'react';
+import type {ProjectData, ProjectState} from "@entities/project/interface/context";
+import { ProjectContext } from '@/entities/project/api/context';
 
 // Reducer для управления состоянием проекта
 type ProjectAction =
@@ -69,6 +45,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode; projectId: s
     children,
     projectId
 }) => {
+    //const {
+    //    data: projectData,
+    //    isLoading,
+    //    error,
+    //    refetch,
+    //} = useProjectQuery(projectId);
+
     const [state, dispatch] = useReducer(projectReducer, {
         projectId,
         projectData: null,
@@ -119,12 +102,4 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode; projectId: s
             {children}
         </ProjectContext.Provider>
     );
-};
-
-export const useProjectContext = () => {
-    const context = useContext(ProjectContext);
-    if (!context) {
-        throw new Error('useProjectContext must be used within ProjectProvider');
-    }
-    return context;
 };

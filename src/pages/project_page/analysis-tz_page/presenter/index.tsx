@@ -14,7 +14,8 @@ import {useAlert} from "@widgets/alert/use-case";
 import {EAlertType} from "@shared/enum/alert";
 import {useUnsavedChanges} from "@shared/routes/hooks/useUnsavedChanges";
 import {useRouteBlocker} from "@shared/routes/hooks/useRouteBlocker";
-import {useProjectContext} from "@pages/project_page/provider";
+import {useProjectContext} from "@entities/project/api/useContext";
+
 
 const ALLOWED_FILE_TYPES = ['.doc', '.docx', '.pdf'];
 const ALLOWED_MIME_TYPES = [
@@ -24,7 +25,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 
 const useAnalysisTZPagePresenter = () => {
-    const {state: projectState} = useProjectContext()
+    const {state: projectState,} = useProjectContext()
 
     const {setTitle} = useSidebarLayout()
     const {data} = useAnalysisPageRequest({projectId: projectState.projectId, enabled: true})
