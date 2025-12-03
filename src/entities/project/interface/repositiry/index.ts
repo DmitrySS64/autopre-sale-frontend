@@ -1,11 +1,11 @@
-import type {CreateProjectPort, EditProjectPort} from "@entities/project/interface/port";
-import type {ProjectDocumentDto, ProjectDto} from "@entities/project/interface/dto";
+import type {ICreateProjectPort, IEditProjectPort} from "@entities/project/interface/port";
+import type {IProjectDocumentDto, IProjectDto} from "@entities/project/interface/dto";
 
 export interface IProjectRepository {
-    getProjectById(projectId: string): Promise<ProjectDto>,
-    getProjects(): Promise<ProjectDto[]>,
-    createProject(request: CreateProjectPort): Promise<ProjectDto>,
-    editProject(project: EditProjectPort): Promise<void>,
+    getProjectById(projectId: string): Promise<IProjectDto>,
+    getProjects(): Promise<IProjectDto[]>,
+    createProject(request: ICreateProjectPort): Promise<IProjectDto>,
+    editProject(project: IEditProjectPort): Promise<IProjectDto>,
     deleteProject(projectId: string): Promise<void>,
-    uploadProjectDocument(projectId: string, file: File): Promise<ProjectDocumentDto>,
+    uploadProjectDocument(projectId: string, file: File): Promise<IProjectDocumentDto>,
 }

@@ -10,8 +10,7 @@ import type {
     ISaveBacklogPort,
     IUploadFilePort
 } from "@entities/project/analysis_tz/interface";
-
-const isStub = true
+import {IS_STUB as isStub} from "@shared/api/const";
 
 const stubBacklogData: IAnalysisTZResponse = {
     projectId: "1",

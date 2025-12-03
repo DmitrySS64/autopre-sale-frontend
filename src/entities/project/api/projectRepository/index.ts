@@ -1,50 +1,51 @@
 import {BaseRepository} from "@shared/api/http/BaseRepository.ts";
 import type {IProjectRepository} from "@entities/project/interface/repositiry";
-import type {ProjectDocumentDto, ProjectDto} from "../../interface/dto";
-import type {CreateProjectPort, EditProjectPort} from "../../interface/port";
+import type {IProjectDocumentDto, IProjectDto} from "../../interface/dto";
+import type {ICreateProjectPort, IEditProjectPort} from "../../interface/port";
 import {EProjectStatus} from "@shared/enum/project";
+import {IS_STUB as isStub} from "@shared/api/const";
 
-const isStub = true;
-
-function getStubProject(id: string, name?: string): ProjectDto {
+function getStubProject(id: string, name?: string, clientName?: string, description?: string): IProjectDto {
     return {
         id,
-        name: `Проект ${name || id}`,
-        clientName: `Клиент ${id}`,
-        status: EProjectStatus.Active,
-        description: `Описание проекта ${name || id}`,
+        name: name || `Проект ${id}`,
+        clientName: clientName || `Клиент ${id}`,
+        status: EProjectStatus.Draft,
+        description: description || `Описание проекта ${name || id}`,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        documents: undefined,
     }
 }
 
 class ProjectRepository extends BaseRepository implements IProjectRepository {
-    public async getProjectById(projectId: string): Promise<ProjectDto> {
+    public async getProjectById(projectId: string): Promise<IProjectDto> {
         if (isStub) {
             await new Promise(resolve => setTimeout(resolve, 500));
 
             const stubProject = getStubProject(projectId);
             return Promise.resolve(stubProject);
         }
-        return await this._httpService.get<ProjectDto>(`/api/Projects/${projectId}`)
+        return await this._httpService.get<IProjectDto>(`/api/Projects/${projectId}`)
     }
-    public async getProjects(): Promise<ProjectDto[]> {
+    public async getProjects(): Promise<IProjectDto[]> {
         if (isStub) {
             await new Promise(resolve => setTimeout(resolve, 500));
-            const stubProjects: ProjectDto[] = [
+            const stubProjects: IProjectDto[] = [
                 getStubProject('1'),
                 getStubProject('2'),
+                getStubProject('3', 'КИБЕРСТАЛЬ. Комплекс машинного зрения для автоматизированного подсчета длины и количества труб')
             ];
             return Promise.resolve(stubProjects);
         }
 
-        return await this._httpService.get<ProjectDto[]>('/api/Projects');
+        return await this._httpService.get<IProjectDto[]>('/api/Projects');
     }
-    public async createProject(request: CreateProjectPort): Promise<ProjectDto> {
+    public async createProject(request: ICreateProjectPort): Promise<IProjectDto> {
         if (isStub) {
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const stubProject: ProjectDto = {
+            const stubProject: IProjectDto = {
                 id: '1',
                 name: request.name,
                 clientName: request.clientName,
@@ -57,26 +58,49 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
             return Promise.resolve(stubProject);
         }
 
-        return await this._httpService.post<ProjectDto>('/api/Projects', {
+        return await this._httpService.post<IProjectDto>('/api/Projects', {
             body: request,
             headers: {
                 'Content-Type': 'application/json',
             }
         });
     }
-    public async editProject(project: EditProjectPort): Promise<void> {
-        console.log(project);
-        throw new Error("Method not implemented.");
+    public async editProject(project: IEditProjectPort): Promise<IProjectDto> {
+        if (isStub) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const existingProject = await this.getProjectById(project.id);
+
+            return Promise.resolve({
+                ...existingProject,
+                name: project.name || existingProject.name,
+                clientName: project.clientName || existingProject.clientName,
+                description: project.description || existingProject.description,
+                updatedAt: new Date().toISOString(),
+            });
+        }
+
+        return await this._httpService.put<IProjectDto>(`/api/Projects/${project.id}`, {
+            body: project,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
     }
+
     public async deleteProject(projectId: string): Promise<void> {
-        console.log(projectId);
-        throw new Error("Method not implemented.");
+        if (isStub) {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            console.log('Удаление проекта:', projectId);
+            return Promise.resolve()
+        }
+
+        return await this._httpService.delete('/api/Projects/' + projectId);
     }
-    public async uploadProjectDocument(projectId: string, file: File): Promise<ProjectDocumentDto> {
+    public async uploadProjectDocument(projectId: string, file: File): Promise<IProjectDocumentDto> {
         if (isStub) {
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            const stubDocument: ProjectDocumentDto = {
+            const stubDocument: IProjectDocumentDto = {
                 id: 'doc-1',
                 fileName: file.name,
                 fileUrl: `/api/files/${file.name}`,
@@ -90,7 +114,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
         const formData = new FormData();
         formData.append('file', file);
 
-        return await this._httpService.post<ProjectDocumentDto>(
+        return await this._httpService.post<IProjectDocumentDto>(
             `/api/Projects/${projectId}/documents`,
             {
                 body: formData,

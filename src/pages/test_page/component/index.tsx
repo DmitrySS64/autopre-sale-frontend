@@ -3,6 +3,10 @@ import {Input} from "@shared/components/form/input/component";
 import {useTestPagePresenter} from "@pages/test_page/case/presenter";
 import {BacklogTable, StaticTable} from "@shared/components/table";
 import type {FormEvent} from "react";
+import {useState} from "react";
+import { ModalTkp } from "@/shared/components/modal_tkp/modal_tkp";
+import AccordionTKP from "@/shared/components/modal_tkp/component/AccordionTKP";
+
 
 const TestPage = () => {
     const {
@@ -11,6 +15,8 @@ const TestPage = () => {
         stateTableData,
         showContextMenuHandel
     } = useTestPagePresenter()
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
@@ -54,6 +60,18 @@ const TestPage = () => {
                 <Input placeholder={'Введите значение'}/>
 
                 <Input placeholder={'Введите значение'} disabled/>
+            </div>
+            <div>
+                <Button onClick={() => setIsModalOpen(true)}>
+                    Показать шаблоны
+                </Button>
+
+                <ModalTkp
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                >
+                    <AccordionTKP />
+                </ModalTkp>
             </div>
             <StaticTable {...stateTableData}/>
             <BacklogTable/>

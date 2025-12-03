@@ -1,13 +1,13 @@
 import type {EProjectStatus} from "@shared/enum/project";
 
-interface CreateProjectPort {
+interface ICreateProjectPort {
     name: string;
     clientName: string;
     status?: EProjectStatus;
     description?: string;
 }
 
-interface EditProjectPort {
+interface IEditProjectPort {
     id: string;
     name: string;
     clientName: string;
@@ -16,6 +16,6 @@ interface EditProjectPort {
 }
 
 export type {
-    CreateProjectPort,
-    EditProjectPort
+    ICreateProjectPort,
+    IEditProjectPort
 }
