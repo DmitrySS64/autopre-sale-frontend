@@ -6,11 +6,15 @@ import {
 import {
     SubscribeButton,
     TextField,
+    TextareaField,
+    SelectField
 } from "@shared/lib/form/component";
 
 const { useAppForm } = createFormHook({
     fieldComponents: {
         TextField,
+        TextareaField,
+        SelectField
     },
     formComponents: {
         SubscribeButton

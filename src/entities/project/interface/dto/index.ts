@@ -1,17 +1,17 @@
 import type {EProjectStatus} from "@shared/enum/project";
 
-interface ProjectDto {
+interface IProjectDto {
     id: string;
     name: string;
     clientName: string;
     status: EProjectStatus;
     description?: string;
-    documents?: ProjectDocumentDto[]
+    documents?: IProjectDocumentDto[]
     createdAt: string;
     updatedAt: string;
 }
 
-interface ProjectDocumentDto {
+interface IProjectDocumentDto {
     id: string;
     fileName: string;
     fileUrl: string;
@@ -20,6 +20,6 @@ interface ProjectDocumentDto {
 }
 
 export type {
-    ProjectDto,
-    ProjectDocumentDto
+    IProjectDto,
+    IProjectDocumentDto
 }

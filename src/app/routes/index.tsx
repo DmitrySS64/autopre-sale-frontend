@@ -1,11 +1,8 @@
 import {
     createRouter,
     createRoute,
-    createRootRouteWithContext, Link, redirect,
+    createRootRouteWithContext, redirect,
 } from "@tanstack/react-router";
-//import {
-//    createMainPageRoute
-//} from "@pages/main_page";
 import {createTestPageRoute} from "@pages/test_page/route";
 import {SidebarLayout} from "@widgets/sidebar";
 import {createProjectsPageRoute} from "@pages/projects_page/route";
@@ -15,20 +12,14 @@ import {createAuthorizationPageRoute} from "@pages/sign-in/route";
 import {createProjectPageRoute} from "@pages/project_page/route"
 import type {IAuthState} from "@entities/user/auth/interface";
 import ERouterPath from "@shared/routes";
+import {PageNotFound} from "@pages/404/content";
 
 interface RouterContext {
     auth: IAuthState;
 }
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
-    notFoundComponent: () => {
-        return (
-            <div>
-                <p>This is the notFoundComponent configured on root route</p>
-                <Link to="/">Start Over</Link>
-            </div>
-        )
-    },
+    notFoundComponent: PageNotFound,
 });
 
 const indexRoute = createRoute({

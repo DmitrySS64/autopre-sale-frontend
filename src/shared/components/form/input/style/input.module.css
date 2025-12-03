@@ -2,26 +2,20 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    
     user-select: none;
-
     padding: 15px 20px;
-
     font-size: 16px;
     line-height: 100%;
-
     background-color: var(--color-neutral);
 
     border-radius: 8px;
     border: 1px solid var(--color-dark-grey);
-    color: var(--color-black);
+    color: var(--color-text-dark);
 
     transition: var(--transition-fast);
     outline: none;
     appearance: none;
     resize: none;
-
 
     &::placeholder{
         color: var(--color-dark-grey);
@@ -41,5 +35,10 @@
     }
     &:disabled::placeholder {
         color: var(--color-dark-grey);
+    }
+    &.search {
+        height: 44px;
+        border-radius: 22px;
+        border: 2px solid var(--color-light-grey);
     }
 }

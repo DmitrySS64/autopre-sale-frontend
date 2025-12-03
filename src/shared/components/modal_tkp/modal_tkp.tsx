@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './style/modal_tkp.css'; // Стили для модального окна
 
 export const ModalTkp = ({ isOpen, onClose, children }) => {

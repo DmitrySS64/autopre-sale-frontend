@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import type {ProjectDto} from "@entities/project/interface/dto";
+import type {IProjectDto} from "@entities/project/interface/dto";
 import {useProjectsQuery} from "@entities/project/api/query";
 import {useSidebarLayout} from "@widgets/sidebar/case/context";
 import {useNavigate} from "@tanstack/react-router";
@@ -12,11 +12,13 @@ import {DeleteProjectModal} from "@pages/projects_page/modal/deleteProjectModal"
 import {useAppForm} from "@shared/lib/form";
 import {searchProjectSchema} from "@pages/projects_page/schema";
 import {useAlert} from "@widgets/alert/use-case";
+import {EAlertType} from "@shared/enum/alert";
 
 
 interface ISearchValues {
     value: {
-        search: string;
+        search?: string;
+        sortType?: string;
     }
 }
 
@@ -26,10 +28,10 @@ const useProjectsPresenter = () => {
         setTitle("Проекты")
     }, [setTitle])
 
-    const [projects, setProjects] = useState<ProjectDto[]>([]);
+    const [projects, setProjects] = useState<IProjectDto[]>([]);
     const {data} = useProjectsQuery()
     const navigate = useNavigate()
-    const { showModal, closeAllModals } = useModal();
+    const { showModal } = useModal();
     const { showContextMenu } = useContextMenu();
     const { showAlert } = useAlert();
 
@@ -48,19 +50,34 @@ const useProjectsPresenter = () => {
     const handleCreateProjectModal = () => {
         showModal({
             title: 'Создание проекта',
-            content: CreateProjectModal()
+            content: <CreateProjectModal/>
         })
     }
 
     const handleEditProjectModal = useCallback((id: string) => {
-        const project = projects.find((project) => project.id === id)?.[0]
-        showModal(EditProjectModal(project, closeAllModals))
-    }, [closeAllModals, projects, showModal])
+        const project = projects.find((project) => project.id === id)
+        if (project) {
+            showModal({
+                title: 'Редактировать проект',
+                content: <EditProjectModal project={project}/>
+            })
+        } else {
+            showAlert('Проект не найден', EAlertType.ERROR)
+        }
+    }, [projects, showAlert, showModal])
 
     const handleDeleteProjectModal = useCallback((id: string) => {
-        const project = projects.find((project) => project.id === id)?.[0]
-        showModal(DeleteProjectModal(project, closeAllModals))
-    }, [closeAllModals, projects, showModal])
+        const project = projects.find((project) => project.id === id)
+
+        if (project) {
+            showModal({
+                title: 'Удалить проект',
+                content: <DeleteProjectModal project={project}/>
+            })
+        } else {
+            showAlert('Проект не найден', EAlertType.ERROR)
+        }
+    }, [projects, showAlert, showModal])
 
     const handleShowContextMenu = useCallback((e: React.MouseEvent, projectId: string) => {
         showContextMenu({
@@ -83,7 +100,8 @@ const useProjectsPresenter = () => {
     }, [handleDeleteProjectModal, handleEditProjectModal, showContextMenu])
 
     const handleProjectSearch = useCallback(({value}: ISearchValues) => {
-        showAlert(`Поиск по "${value.search}"`)
+        showAlert(`Поиск по "${value.search}". Сортировать по "${value.sortType}"`)
+        showAlert(`На текущий момент поиск не работает`, EAlertType.WARNING)
     }, [showAlert])
 
     const form = useAppForm({
