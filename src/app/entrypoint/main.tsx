@@ -9,6 +9,7 @@ import {AuthProvider} from "@entities/user/auth/provider";
 import {InnerApp} from "@app/entrypoint/innerApp.tsx";
 import {ModalProvider} from "@widgets/modal/provider";
 import {ContextMenuProvider} from "@widgets/context_menu/provider";
+import {AlertProvider} from "@widgets/alert/provider";
 
 const queryClient = new QueryClient()
 
@@ -21,13 +22,15 @@ if (rootElement && !rootElement.innerHTML) {
         <StrictMode>
             <QueryClientProvider client={queryClient}>
                 <ReactQueryDevtools buttonPosition={'bottom-right'}/>
-                <AuthProvider>
-                    <ModalProvider>
-                        <ContextMenuProvider>
-                            <InnerApp/>
-                        </ContextMenuProvider>
-                    </ModalProvider>
-                </AuthProvider>
+                <AlertProvider>
+                    <AuthProvider>
+                        <ModalProvider>
+                            <ContextMenuProvider>
+                                <InnerApp/>
+                            </ContextMenuProvider>
+                        </ModalProvider>
+                    </AuthProvider>
+                </AlertProvider>
                 <TanStackRouterDevtools router={router}/>
             </QueryClientProvider>
         </StrictMode>,

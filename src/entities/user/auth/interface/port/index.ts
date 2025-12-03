@@ -11,4 +11,9 @@ interface ISignInPort {
     password: string
 }
 
-export type {IRegisterPort, ISignInPort}
+interface IRefreshPort {
+    refreshToken: string;
+    userId: string;
+}
+
+export type {IRegisterPort, ISignInPort, IRefreshPort}

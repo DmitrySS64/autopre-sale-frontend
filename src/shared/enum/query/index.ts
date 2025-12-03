@@ -1,6 +1,8 @@
 const ROOT_AUTH = "auth:"
 enum EQueryKeys {
     GET_ME = `${ROOT_AUTH}get-me`,
+    ANALYSIS_TZ = `analysis:get-backlog`,
+    PROJECTS = 'projects:',
 }
 
 enum EMutationKeys {
@@ -12,7 +14,7 @@ enum EMutationKeys {
 
 enum EAuthAPI {
     ROOT = "/api/Auth/",
-    GET_ME = `${ROOT}getme`,
+    GET_ME = `${ROOT}get-me`,
     REGISTER = `${ROOT}register`,
     SIGN_IN = `${ROOT}login`,
     SIGN_OUT = `${ROOT}sign-out`,

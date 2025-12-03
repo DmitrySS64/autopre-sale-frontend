@@ -1,66 +1,26 @@
 import {Button} from "@shared/components/form/button";
 import {Input} from "@shared/components/form/input/component";
 import {useTestPagePresenter} from "@pages/test_page/case/presenter";
-import {useSidebarLayout} from "@widgets/sidebar/case/context";
-import {useEffect, useState} from "react";
-import {useModal} from "@widgets/modal/use-case";
-import {useContextMenu} from "@widgets/context_menu/use-case";
-import {ICON_PATH} from "@shared/components/images/icons";
+import {BacklogTable, StaticTable} from "@shared/components/table";
+import type {FormEvent} from "react";
+import {useState} from "react";
 import { ModalTkp } from "@/shared/components/modal_tkp/modal_tkp";
-import ProjectModalContent from "@/shared/components/modal_tkp/component/ProjectModalContent";
 import AccordionTKP from "@/shared/components/modal_tkp/component/AccordionTKP";
 
 
 const TestPage = () => {
-    const { form, buttonOnClick } = useTestPagePresenter()
-    const {setTitle} = useSidebarLayout()
-    const {showModal} = useModal()
-    const {showContextMenu} = useContextMenu()
+    const {
+        form,
+        showModalHandle,
+        stateTableData,
+        showContextMenuHandel
+    } = useTestPagePresenter()
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    useEffect(() => {
-        setTitle("Тестовая страница")
-    }, [setTitle])
-
-    const showModalHandle = () => showModal({
-        title: "Вы точно хотите удалить элемент бэклога?",
-        content: <>
-            <div>
-                <Button outline>
-                    Отмена
-                </Button>
-                <Button>
-                    Удалить
-                </Button>
-            </div>
-        </>
-    })
-
-    const showContextMenuHandel = (e: React.MouseEvent) => {
-        showContextMenu({
-            items: [
-                {
-                    id: "Add",
-                    icon: ICON_PATH.ADD,
-                    label: 'Добавить',
-                    onClick: () => {},
-                },{
-                    id: 'divider',
-                    divider: true,
-                }, {
-                    id: 'delete',
-                    label: "Удалить",
-                    disabled: true
-                }, {
-                    id: 'delete',
-                    label: "Удалить",
-                }
-            ],
-            position: {
-                x: e.clientX,
-                y: e.clientY
-            }
-        })
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        await form.handleSubmit()
     }
 
     return (
@@ -81,7 +41,7 @@ const TestPage = () => {
             </div>
 
             <div className={'flex gap-2'}>
-                <form className={'flex flex-col gap-2'}>
+                <form className={'flex flex-col gap-2'} onSubmit={handleSubmit}>
                     <form.AppField name={'input'}>
                         {(field) => (
                             <field.TextField
@@ -92,10 +52,7 @@ const TestPage = () => {
                         )}
                     </form.AppField>
                     <form.AppForm>
-                        <form.SubscribeButton
-                            type="submit"
-                            onClick={buttonOnClick}
-                        >
+                        <form.SubscribeButton>
                             Кнопка
                         </form.SubscribeButton>
                     </form.AppForm>
@@ -109,13 +66,15 @@ const TestPage = () => {
                     Показать шаблоны
                 </Button>
 
-                <ModalTkp 
-                    isOpen={isModalOpen} 
+                <ModalTkp
+                    isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                 >
                     <AccordionTKP />
                 </ModalTkp>
             </div>
+            <StaticTable {...stateTableData}/>
+            <BacklogTable/>
         </div>
 
     )

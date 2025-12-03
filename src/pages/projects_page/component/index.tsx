@@ -8,6 +8,7 @@ import { useProjectsPagePresenter } from "../presenter/useProjectsPagePresenter"
 import { CreateProjectModal } from "@/widgets/projects/modals/CreateProjectModal";
 import { EditProjectModal } from "@/widgets/projects/modals/EditProjectModal";
 import { DeleteProjectModal } from "@/widgets/projects/modals/DeleteProjectModal";
+//import {useProjectsPresenter} from "@pages/projects_page/presenter";
 
 const ProjectsPage = () => {
     const { setTitle } = useSidebarLayout();
@@ -20,29 +21,30 @@ const ProjectsPage = () => {
     useEffect(() => {
         setTitle("Проекты")
     }, [setTitle]);
+    //const {projects, handleOpenProject} = useProjectsPresenter()
 
     return (
         <div>
             <header className="flex flex-col xl:flex-row justify-between w-full content-center items-start xl:items-center gap-4 xl:gap-0">
                 <form onSubmit={actions.handleSearchSubmit} className="flex flex-col xl:flex-row gap-4 xl:gap-[50px] w-full xl:w-auto">
-                    <Input 
-                        type="search" 
-                        className="w-full xl:w-[400px] h-11 !rounded-4xl" 
-                        placeholder="Поиск" 
+                    <Input
+                        type="search"
+                        className="w-full xl:w-[400px] h-11 !rounded-4xl"
+                        placeholder="Поиск"
                         name="search"
                     />
-                    <select 
+                    <select
                         name="sort"
                         className="
-                            h-11 
-                            px-4 py-2 pr-10 
-                            bg-white 
-                            border border-gray-300 
-                            rounded-lg 
+                            h-11
+                            px-4 py-2 pr-10
+                            bg-white
+                            border border-gray-300
+                            rounded-lg
                             text-gray-900 text-sm font-normal
-                            appearance-none 
+                            appearance-none
                             cursor-pointer
-                            hover:border-gray-400 
+                            hover:border-gray-400
                             focus:outline-none focus:ring-2 focus:ring-[#FFE7DB] focus:border-transparent
                             transition-all duration-200
                             w-full xl:w-auto
@@ -55,10 +57,10 @@ const ProjectsPage = () => {
                     </select>
                     <button type="submit" className="sr-only">Применить фильтры</button>
                 </form>
-                
-                <Button 
+
+                <Button
                     onClick={actions.handleOpenModal}
-                    type="button" 
+                    type="button"
                     className="w-full xl:w-[200px] flex justify-between content-center gap-5"
                 >
                     <span>Добавить</span>
@@ -80,9 +82,9 @@ const ProjectsPage = () => {
 
             {/* Модалки */}
             {state.visible && state.modalId === 'create-project-modal' && (
-                <Modal 
-                    title="Создание проекта" 
-                    onClose={actions.handleCloseModal} 
+                <Modal
+                    title="Создание проекта"
+                    onClose={actions.handleCloseModal}
                     id={state.modalId}
                 >
                     <CreateProjectModal form={form} state={state} actions={actions} />
@@ -90,9 +92,9 @@ const ProjectsPage = () => {
             )}
 
             {state.visible && state.modalId === 'edit-project-modal' && (
-                <Modal 
-                    title="Изменение проекта" 
-                    onClose={actions.handleCloseModal} 
+                <Modal
+                    title="Изменение проекта"
+                    onClose={actions.handleCloseModal}
                     id={state.modalId}
                 >
                     <EditProjectModal form={form} state={state} actions={actions} />
@@ -100,9 +102,9 @@ const ProjectsPage = () => {
             )}
 
             {state.visible && state.modalId === 'delete-project-modal' && (
-                <Modal 
-                    title="Удаление проекта" 
-                    onClose={actions.handleCloseModal} 
+                <Modal
+                    title="Удаление проекта"
+                    onClose={actions.handleCloseModal}
                     id={state.modalId}
                 >
                     <DeleteProjectModal state={state} actions={actions} />
@@ -111,5 +113,4 @@ const ProjectsPage = () => {
         </div>
     )
 }
-
-export default ProjectsPage;
+export default ProjectsPage

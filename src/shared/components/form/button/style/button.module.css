@@ -11,6 +11,11 @@
     border-radius: 8px;
     user-select: none;
 
+    font-size: 20px;
+    line-height: 100%;
+    letter-spacing: 0;
+    font-weight: 600;
+
     &:hover {
         background-color: var(--color-accent2);
     }

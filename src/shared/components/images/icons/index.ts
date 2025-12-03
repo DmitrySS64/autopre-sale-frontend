@@ -15,7 +15,7 @@ import {
     mdiUpload,
     mdiMinus,
     mdiAlert,
-    mdiLoading
+    mdiLoading, mdiFormatListGroupPlus, mdiCheckCircle, mdiInformation, mdiAlertCircle
 } from "@mdi/js"
 
 const ICON_PATH = {
@@ -25,6 +25,7 @@ const ICON_PATH = {
     DESCRIPTION: mdiFileDocument,
     SEARCH: mdiMagnify,
     ADD: mdiPlus ,
+    ADD_MULTIPLE: mdiFormatListGroupPlus,
     OPEN_FOLDER: mdiFolderOpenOutline,
     ARROW_DROP_DOWN: mdiMenuDown ,
     DONE: mdiCheck ,
@@ -36,7 +37,10 @@ const ICON_PATH = {
     CROSS: mdiWindowClose ,
     UPLOAD: mdiUpload ,
     REMOVE: mdiMinus ,
-    WARNING: mdiAlert ,
+    ALERT_WARNING: mdiAlert,
+    ALERT_SUCCESS: mdiCheckCircle,
+    ALERT_INFO: mdiInformation,
+    ALERT_ERROR: mdiAlertCircle,
 } as const
 
 //export type EIconPath = typeof EIconPath[keyof typeof EIconPath]

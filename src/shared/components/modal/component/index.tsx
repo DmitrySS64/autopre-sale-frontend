@@ -7,7 +7,7 @@ import Icon from "@mdi/react";
 const Modal = ({
     id,
     title,
-    onClose,
+    onClose, canClose = true,
     children,
 }:IModalCompProps) => {
     const dialogRef = useRef<HTMLDialogElement>(null);
@@ -39,9 +39,11 @@ const Modal = ({
                 ref={dialogRef}
                 className={style.modal}
             >
-                <button className={style.closeBtn} onClick={handleClose}>
-                    <Icon path={ICON_PATH.CROSS} size={1}/>
-                </button>
+                {canClose &&
+                    <button className={style.closeBtn} onClick={handleClose}>
+                        <Icon path={ICON_PATH.CROSS} size={1}/>
+                    </button>
+                }
                 {title && <h1>{title}</h1>}
                 {children}
             </dialog>
