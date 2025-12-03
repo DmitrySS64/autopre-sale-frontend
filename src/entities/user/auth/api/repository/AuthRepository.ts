@@ -4,11 +4,11 @@ import type {IGetMeDto, IRefreshResponse, IRegisterDto, ISignInDto} from "@entit
 import {EAuthAPI} from "@shared/enum/query";
 import type {IRefreshPort, IRegisterPort, ISignInPort} from "@entities/user/auth/interface/port";
 import {ELocalStorageKeys} from "@shared/enum/storage";
+import {IS_STUB as isStub}  from "@shared/api/const";
 //import type {ICookieService} from "@shared/services/cookie/ICookieService.ts";
 //import {CookieService} from "@shared/services/cookie/CookieService.ts";
 //import {ECookieKey} from "@shared/services/cookie/ECookieKey.ts";
 
-const isStub: boolean = true
 
 const stubUser: IRegisterDto = {
     user: {

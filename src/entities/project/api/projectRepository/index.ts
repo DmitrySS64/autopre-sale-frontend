@@ -3,8 +3,7 @@ import type {IProjectRepository} from "@entities/project/interface/repositiry";
 import type {IProjectDocumentDto, IProjectDto} from "../../interface/dto";
 import type {ICreateProjectPort, IEditProjectPort} from "../../interface/port";
 import {EProjectStatus} from "@shared/enum/project";
-
-const isStub = true;
+import {IS_STUB as isStub} from "@shared/api/const";
 
 function getStubProject(id: string, name?: string, clientName?: string, description?: string): IProjectDto {
     return {
