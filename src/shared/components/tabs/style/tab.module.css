@@ -6,7 +6,7 @@
     cursor: pointer;
     padding: 0 15px 5px 15px;
     &[aria-selected="true"]{
-        border-bottom: solid 1px var(--color-dark-grey);
+        border-bottom: solid 2px var(--color-text-dark);
     }
     &:focus{
         outline: none;
