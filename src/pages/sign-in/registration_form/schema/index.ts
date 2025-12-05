@@ -25,33 +25,39 @@ const registrationSchema = z
             .min(1, ERROR_MESSAGES.EMPTY_FIELD)
             .min(2, ERROR_MESSAGES.NAME_LENGTH)
             .max(127, ERROR_MESSAGES.NAME_LENGTH)
-            .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS),
+            .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS)
+            .default(''), // ← добавляем default
         lastName: z
             .string()
             .min(1, ERROR_MESSAGES.EMPTY_FIELD)
             .min(2, ERROR_MESSAGES.LASTNAME_LENGTH)
             .max(127, ERROR_MESSAGES.LASTNAME_LENGTH)
-            .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS),
+            .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS)
+            .default(''), // ← добавляем default
         middleName: z
             .string()
             .min(1, ERROR_MESSAGES.EMPTY_FIELD)
             .min(2, ERROR_MESSAGES.LASTNAME_LENGTH)
             .max(127, ERROR_MESSAGES.LASTNAME_LENGTH)
-            .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS),
+            .regex(NAME_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS)
+            .default(''), // ← добавляем default
         email: z
             .string()
             .min(1, ERROR_MESSAGES.EMPTY_FIELD)
             .max(255, ERROR_MESSAGES.EMAIL_LENGTH)
-            .regex(EMAIL_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS),
+            .regex(EMAIL_REGEX, ERROR_MESSAGES.INCORRECT_CHARACTERS)
+            .default(''), // ← добавляем default
         password: z
             .string()
             .min(1, ERROR_MESSAGES.EMPTY_FIELD)
             .min(8, ERROR_MESSAGES.PASSWORD_LENGTH)
             .max(1024, ERROR_MESSAGES.PASSWORD_LENGTH)
-            .regex(PASSWORD_REGEX, ERROR_MESSAGES.WEAK_PASSWORD),
+            .regex(PASSWORD_REGEX, ERROR_MESSAGES.WEAK_PASSWORD)
+            .default(''), // ← добавляем default
         confirmPassword: z
             .string()
-            .min(1, ERROR_MESSAGES.EMPTY_FIELD),
+            .min(1, ERROR_MESSAGES.EMPTY_FIELD)
+            .default(''), // ← добавляем default
     })
     .refine((data) => data.password === data.confirmPassword, {
         path: ['confirmPassword'],

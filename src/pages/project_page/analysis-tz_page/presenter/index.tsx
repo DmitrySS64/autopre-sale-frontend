@@ -160,7 +160,7 @@ const useAnalysisTZPagePresenter = () => {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            showAlert(`Backlog downloaded successfully in ${format} format`)
+            showAlert(`Бэклог успешно загружен в формате ${format}`)
 
         } catch (error) {
 
@@ -203,6 +203,7 @@ const useAnalysisTZPagePresenter = () => {
 
         if (!isValidFileType(file)){
             showAlert('Неподдерживаемый формат файла. Поддерживаются: PDF, DOC, DOCX', EAlertType.WARNING)
+            return;
         }
 
         const modalId = showModal({
