@@ -7,6 +7,7 @@ import {Link, useParams} from "@tanstack/react-router";
 import ERouterPath from "@shared/routes";
 import {useSignOutRequest} from "@entities/user/auth/use-case/sing-out";
 import {useAuth} from "@entities/user/auth/context/useAuth.ts";
+import { useAlert } from '@/widgets/alert/use-case';
 
 interface ISidebarItemProps {
     icon?: string;
@@ -36,9 +37,11 @@ const Sidebar = () => {
 
     const { mutate: signOut, isPending } = useSignOutRequest();
     const {user} = useAuth();
+    const {showAlert} = useAlert()
 
     const handleSignOut = () => {
         signOut();
+        showAlert(`Выход выполнен успешно`)
     };
 
     return (
