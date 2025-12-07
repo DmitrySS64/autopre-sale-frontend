@@ -84,7 +84,7 @@ const EditProjectModal = ({project}: IEditProjectModal) => {
             </form.AppField>
             <form.AppField name={'projectDescription'}>
                 {(field) => (
-                    <field.TextField
+                    <field.TextareaField
                         label={'Описание проекта'}
                         placeholder={project.description}
                     />

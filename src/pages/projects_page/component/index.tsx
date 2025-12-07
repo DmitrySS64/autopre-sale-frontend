@@ -29,7 +29,7 @@ const ProjectsPage = () => {
     }, [form])
 
     return (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-10 p-10">
             <div className="flex flex-col xl:flex-row justify-between w-full content-center items-start xl:items-center gap-4 xl:gap-0">
                 <form className="flex flex-col xl:flex-row gap-4 xl:gap-[50px] w-full xl:w-auto">
                     <form.AppField name={'search'}>

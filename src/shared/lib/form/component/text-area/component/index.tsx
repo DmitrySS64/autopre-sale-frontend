@@ -4,6 +4,7 @@ import type {ITextAreaProps} from "@shared/lib/form/component/text-area/interfac
 import {Label} from "@shared/components/form/label/content";
 import {cn} from "@shared/lib/cn";
 import style from '../style/textarea.module.css'
+import {Textarea} from "@shared/components/form/textarea";
 
 const TextareaField = ({
     label,
@@ -17,8 +18,7 @@ const TextareaField = ({
     const firstError = head(errorMessages)
 
     const textareaElement = (
-        <textarea
-            className={style.textarea}
+        <Textarea
             {...props}
             value={value}
             onBlur={onBlur ?? field.handleBlur}

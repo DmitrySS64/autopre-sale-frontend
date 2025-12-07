@@ -15,7 +15,7 @@ import {
     mdiUpload,
     mdiMinus,
     mdiAlert,
-    mdiLoading, mdiFormatListGroupPlus, mdiCheckCircle, mdiInformation, mdiAlertCircle
+    mdiLoading, mdiFormatListGroupPlus, mdiCheckCircle, mdiInformation, mdiAlertCircle, mdiDelete
 } from "@mdi/js"
 
 const ICON_PATH = {
@@ -41,6 +41,7 @@ const ICON_PATH = {
     ALERT_SUCCESS: mdiCheckCircle,
     ALERT_INFO: mdiInformation,
     ALERT_ERROR: mdiAlertCircle,
+    DELETE: mdiDelete
 } as const
 
 //export type EIconPath = typeof EIconPath[keyof typeof EIconPath]

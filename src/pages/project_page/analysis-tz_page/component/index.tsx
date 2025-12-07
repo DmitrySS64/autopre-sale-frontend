@@ -35,15 +35,17 @@ const AnalysisPage = () => {
 
     if (!haveDoc)
         return (
-            <div className={style.row}>
-                <h2>В проекте нет документа для анализа</h2>
-                <InputFile onChange={handleUpload} accept={allowedFileTypes.join(',')}>
-                    <Icon path={ICON_PATH.UPLOAD} size={1}/>
-                    Загрузить
-                </InputFile>
+            <div className={style.main}>
+                <div className={style.row}>
+                    <h2>В проекте нет документа для анализа</h2>
+                    <InputFile onChange={handleUpload} accept={allowedFileTypes.join(',')}>
+                        <Icon path={ICON_PATH.UPLOAD} size={1}/>
+                        Загрузить
+                    </InputFile>
+                </div>
             </div>
         )
-    
+
     return (
         <div className={style.main}>
             <StaticTable

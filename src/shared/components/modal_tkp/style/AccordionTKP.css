@@ -5,6 +5,7 @@
 
 .accordion-items {
   background: #fff;
+  user-select: none;
 }
 
 .accordion-item {
