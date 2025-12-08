@@ -1,5 +1,5 @@
 .button {
-    padding: 12px 25px;
+    padding: 10px 15px;
     color: white;
     background-color: var(--color-accent1);
     border: none;
@@ -7,11 +7,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     border-radius: 8px;
     user-select: none;
 
-    font-size: 20px;
+    font-size: 16px;
     line-height: 100%;
     letter-spacing: 0;
     font-weight: 600;

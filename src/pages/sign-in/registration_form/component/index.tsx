@@ -12,7 +12,7 @@ const RegistrationForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit} className={'flex flex-col gap-[60px]'}>
+        <form onSubmit={handleSubmit} className={'flex flex-col gap-[40px]'}>
             <div className={'w-full flex flex-col gap-[20px]'}>
                 <form.AppField name={'firstName'}>
                     {(field) => (

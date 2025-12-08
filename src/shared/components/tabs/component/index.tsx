@@ -12,7 +12,7 @@ const Tabs: FC<ITabsProps> = ({ tabs, className}) => {
     return (
         <div className={className}>
             <nav>
-                <ul className="flex flex-wrap justify-between px-[20px] text-[26px] text-center" role="tablist">
+                <ul className="flex flex-wrap justify-between px-[20px] text-[20px] font-semibold text-center" role="tablist">
                     {tabs.map((tab, index)=>(
                         <li key={index} role="presentation">
                             <Tab

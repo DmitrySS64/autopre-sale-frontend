@@ -21,7 +21,7 @@ const ConstructorPage = () => {
 
     return (
         <div className={style.main}>
-            <div className={'flex justify-between px-10'}>
+            <div className={'flex justify-between px-5'}>
                 <Button outline onClick={() => setShowTemplateModal(true)}>Библиотека блоков</Button>
                 <Button>Сгенерировать ТКП</Button>
             </div>

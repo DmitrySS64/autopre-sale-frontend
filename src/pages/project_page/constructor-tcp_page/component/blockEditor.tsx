@@ -219,7 +219,7 @@ const BlockEditor = ({
             </div>
 
             <div className={style.scrollList}>
-                <div className={'flex flex-col gap-2 px-1 pt-2 pb-10'}>
+                <div className={'flex flex-col gap-5 px-1 pt-2 pb-10'}>
                     {titleField ? (
                         <div className="w-full">
                             <Label>

@@ -52,7 +52,7 @@ const Sidebar = () => {
                         name={'Проекты'}/>
                     {projectId && (
                         <>
-                            <div className={'h-[2px] w-[250px] bg-gray-400 mx-auto mt-[5px] mb-[12px] select-none'}/>
+                            <div className={'h-[2px] w-[185px] bg-gray-400 mx-auto mt-[5px] mb-[12px] select-none'}/>
                             <SidebarItem
                                 path={ERouterPath.PROJECT + '/' + projectId + ERouterPath.ANALYSIS}
                                 icon={ICON_PATH.ANALYSIS}
