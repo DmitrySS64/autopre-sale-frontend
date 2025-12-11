@@ -1,15 +1,23 @@
 import {useAuthFormPresenter} from "@pages/sign-in/authorization_form/presenter";
 import type {FormEvent} from "react";
+import {useState} from "react";
+import Icon from "@mdi/react";
+import { ICON_PATH } from "@/shared/components/images/icons";
 
 const AuthForm = () => {
-
     const {
         form
     } = useAuthFormPresenter()
+    
+    const [showPassword, setShowPassword] = useState(false)
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         await form.handleSubmit()
+    }
+    
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword)
     }
 
     return (
@@ -20,16 +28,27 @@ const AuthForm = () => {
                         <field.TextField
                             type={'email'}
                             placeholder={'Почта'}
-
                         />
                     )}
                 </form.AppField>
                 <form.AppField name={'password'}>
                     {(field) => (
-                        <field.TextField
-                            type={'password'}
-                            placeholder={"Пароль"}
-                        />
+                        <div className="relative">
+                            <field.TextField
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder={"Пароль"}
+                            />
+                            <div
+                                onClick={togglePasswordVisibility}
+                                className="absolute right-5 top-1/2 transform -translate-y-1/2"
+                                tabIndex={-1}
+                            >
+                                <Icon 
+                                    path={showPassword ? ICON_PATH.EYE_OFF : ICON_PATH.EYE} 
+                                    size={1}
+                                />
+                            </div>
+                        </div>
                     )}
                 </form.AppField>
             </div>

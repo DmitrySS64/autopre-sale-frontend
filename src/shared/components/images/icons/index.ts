@@ -2,7 +2,8 @@ import {
     mdiLogout,
     mdiFolderMultiple,
     mdiChartBox,
-    mdiFileDocument, mdiMagnify,
+    mdiFileDocument,
+    mdiMagnify,
     mdiPlus,
     mdiFolderOpenOutline,
     mdiMenuDown,
@@ -15,7 +16,13 @@ import {
     mdiUpload,
     mdiMinus,
     mdiAlert,
-    mdiLoading, mdiFormatListGroupPlus, mdiCheckCircle, mdiInformation, mdiAlertCircle
+    mdiLoading,
+    mdiFormatListGroupPlus,
+    mdiCheckCircle,
+    mdiInformation,
+    mdiAlertCircle,
+    mdiEye,   
+    mdiEyeOff   
 } from "@mdi/js"
 
 const ICON_PATH = {
@@ -24,23 +31,25 @@ const ICON_PATH = {
     ANALYSIS: mdiChartBox,
     DESCRIPTION: mdiFileDocument,
     SEARCH: mdiMagnify,
-    ADD: mdiPlus ,
+    ADD: mdiPlus,
     ADD_MULTIPLE: mdiFormatListGroupPlus,
     OPEN_FOLDER: mdiFolderOpenOutline,
-    ARROW_DROP_DOWN: mdiMenuDown ,
-    DONE: mdiCheck ,
-    MORE_VERT: mdiDotsVertical ,
-    KEYBOARD_ARROW_LEFT: mdiChevronLeft ,
+    ARROW_DROP_DOWN: mdiMenuDown,
+    DONE: mdiCheck,
+    MORE_VERT: mdiDotsVertical,
+    KEYBOARD_ARROW_LEFT: mdiChevronLeft,
     KEYBOARD_ARROW_RIGHT: mdiChevronRight,
-    DOWNLOAD: mdiDownload ,
-    PROGRESS_ACTIVITY: mdiLoading ,
-    CROSS: mdiWindowClose ,
-    UPLOAD: mdiUpload ,
-    REMOVE: mdiMinus ,
+    DOWNLOAD: mdiDownload,
+    PROGRESS_ACTIVITY: mdiLoading,
+    CROSS: mdiWindowClose,
+    UPLOAD: mdiUpload,
+    REMOVE: mdiMinus,
     ALERT_WARNING: mdiAlert,
     ALERT_SUCCESS: mdiCheckCircle,
     ALERT_INFO: mdiInformation,
     ALERT_ERROR: mdiAlertCircle,
+    EYE: mdiEye,        
+    EYE_OFF: mdiEyeOff  
 } as const
 
 //export type EIconPath = typeof EIconPath[keyof typeof EIconPath]
