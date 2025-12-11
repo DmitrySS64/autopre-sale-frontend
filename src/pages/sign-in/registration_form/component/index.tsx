@@ -1,7 +1,13 @@
+import { ICON_PATH } from "@/shared/components/images/icons";
+import Icon from "@mdi/react";
 import {useRegistrationFormPresenter} from "@pages/sign-in/registration_form/presenter";
-import {type FormEvent} from "react";
+import {useState, type FormEvent} from "react";
 
 const RegistrationForm = () => {
+    const [showPassword, setShowPassword] = useState(false)
+    const [showPasswordRepeat, setShowPasswordRepeat] = useState(false)
+
+
     const {
         form
     } = useRegistrationFormPresenter()
@@ -9,6 +15,14 @@ const RegistrationForm = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         await form.handleSubmit()
+    }
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword)
+    }
+    
+    const togglePasswordRepeatVisibility = () => {
+        setShowPasswordRepeat(!showPasswordRepeat)
     }
 
     return (
@@ -48,19 +62,42 @@ const RegistrationForm = () => {
                 </form.AppField>
                 <form.AppField name={'password'}>
                     {(field) => (
-                        <field.TextField
-
-                            type={'password'}
+                        <div className="relative">
+                            <field.TextField
+                            type={showPassword ? 'text' : 'password'}
                             placeholder={'Пароль'}
-                        />
+                            />
+                        <div
+                            onClick={togglePasswordVisibility}
+                            className="absolute right-5 top-1/2 transform -translate-y-1/2"
+                            tabIndex={-1}
+                        >
+                            <Icon 
+                                path={showPassword ? ICON_PATH.EYE_OFF : ICON_PATH.EYE} 
+                                size={1}
+                            />
+                        </div>
+                        </div>
                     )}
                 </form.AppField>
                 <form.AppField name={'confirmPassword'}>
                     {(field) => (
-                        <field.TextField
-                            type={'password'}
+                        <div className="relative">
+                            <field.TextField
+                            type={showPasswordRepeat ? 'text' : 'password'}
                             placeholder={'Подтвердить пароль'}
-                        />
+                            />
+                        <div
+                            onClick={togglePasswordRepeatVisibility}
+                            className="absolute right-5 top-1/2 transform -translate-y-1/2"
+                            tabIndex={-1}
+                        >
+                            <Icon 
+                                path={showPasswordRepeat ? ICON_PATH.EYE_OFF : ICON_PATH.EYE} 
+                                size={1}
+                            />
+                        </div>
+                        </div>
                     )}
                 </form.AppField>
             </div>
