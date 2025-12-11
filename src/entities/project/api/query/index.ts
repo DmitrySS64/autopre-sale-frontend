@@ -47,6 +47,7 @@ const useCreateProjectMutation = () => {
 const useUploadProjectDocumentMutation = () => {
     return useMutation<IProjectDocumentDto, Error, { projectId: string; file: File }>({
         mutationFn: ({ projectId, file }) => repository.uploadProjectDocument(projectId, file),
+        mutationKey: [EQueryKeys.PROJECTS+'uploadFile'],
     });
 };
 

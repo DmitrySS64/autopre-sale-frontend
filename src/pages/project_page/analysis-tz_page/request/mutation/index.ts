@@ -1,33 +1,47 @@
 import {AnalysisRepository} from "@entities/project/analysis_tz/api/AnalysisRepository.ts";
 import {HTTP_APP_SERVICE} from "@shared/services/http/HttpAppService.ts";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import type {
     IDownloadBacklogPort,
     ISaveBacklogPort,
     ISaveBacklogResponse,
-    IUploadFilePort,
-    IUploadFileResponse
 } from "@entities/project/analysis_tz/interface";
+import {EQueryKeys} from "@shared/enum/query";
 
 
 const repository = new AnalysisRepository(HTTP_APP_SERVICE);
 
-// Мутация для загрузки файла ТЗ
-function useUploadTZMutation() {
-    return useMutation<IUploadFileResponse, Error, IUploadFilePort>({
-        mutationFn: (port: IUploadFilePort) => repository.uploadTZFile(port),
-        onError: (error) => {
-            console.error('Error uploading TZ file:', error);
-        },
-    });
-}
 
 // Мутация для сохранения бэклога
 function useSaveBacklogMutation() {
+    const queryClient = useQueryClient();
+
     return useMutation<ISaveBacklogResponse, Error, ISaveBacklogPort>({
         mutationFn: (port: ISaveBacklogPort) => repository.saveBacklog(port),
-        onError: (error) => {
+        onSuccess: (_, variables) => {
+            // Инвалидируем кэш после успешного сохранения
+            queryClient.invalidateQueries({
+                queryKey: [EQueryKeys.ANALYSIS_TZ, variables.projectId]
+            });
+
+            // Можно также обновить кэш оптимистично
+            //queryClient.setQueryData(
+            //    [EQueryKeys.ANALYSIS_TZ, variables.projectId],
+            //    (oldData: IAnalysisTZResponse | undefined) => {
+            //        if (!oldData) return oldData;
+            //        return {
+            //            ...oldData,
+            //            backlogData: port.backlogData
+            //        };
+            //    }
+            //);
+        },
+        onError: (error, variables) => {
             console.error('Error saving backlog:', error);
+            // При ошибке можно откатить оптимистичное обновление
+            queryClient.invalidateQueries({
+                queryKey: [EQueryKeys.ANALYSIS_TZ, variables.projectId]
+            });
         },
     });
 }
@@ -42,19 +56,25 @@ function useDownloadBacklogMutation() {
     });
 }
 
+
 // Общий хук для всех мутаций
 function useAnalysisPageMutation() {
-    const uploadMutation = useUploadTZMutation();
     const saveMutation = useSaveBacklogMutation();
     const downloadMutation = useDownloadBacklogMutation();
 
     return {
-        uploadTZ: uploadMutation.mutateAsync,
-        uploadTZStatus: uploadMutation,
         saveBacklog: saveMutation.mutateAsync,
         saveBacklogStatus: saveMutation,
         downloadBacklog: downloadMutation.mutateAsync,
         downloadBacklogStatus: downloadMutation,
+
+        // Состояния для UI
+        isSaving: saveMutation.isPending,
+        isDownloading: downloadMutation.isPending,
+
+        // Ошибки
+        saveError: saveMutation.error,
+        downloadError: downloadMutation.error,
     };
 }
 

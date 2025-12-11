@@ -23,6 +23,17 @@ function useAnalysisPageRequest({
             return await repository.getBacklogData(projectId);
         } catch (error) {
             console.error('Error fetching backlog data:', error);
+
+            // Если ошибка 404 (бэклог не найден), возвращаем структуру без бэклога
+            if (error?.status === 404) {
+                return {
+                    projectId,
+                    projectName: `Проект ${projectId}`,
+                    // fileName и fileUrl будут undefined
+                    // backlogData будет undefined
+                };
+            }
+
             throw error;
         }
     };
@@ -36,6 +47,8 @@ function useAnalysisPageRequest({
         refetchOnMount: false,
         refetchOnReconnect: false,
         retry: 1,
+        // Опционально: кэшируем на диске
+        // persist: true,
     });
 }
 

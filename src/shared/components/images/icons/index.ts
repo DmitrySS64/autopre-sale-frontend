@@ -41,7 +41,7 @@ const ICON_PATH = {
     ALERT_SUCCESS: mdiCheckCircle,
     ALERT_INFO: mdiInformation,
     ALERT_ERROR: mdiAlertCircle,
-    DELETE: mdiDelete
+    DELETE: mdiDelete,
 } as const
 
 //export type EIconPath = typeof EIconPath[keyof typeof EIconPath]

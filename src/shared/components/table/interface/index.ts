@@ -45,4 +45,4 @@ interface ITableRowProps {
     dropPosition?: 'before' | 'after' | 'inside' | null;
 }
 
-export type { ITableProps, ITableRowProps, IStaticTableProps}
+export type { ITableProps, ITableRowProps, IStaticTableProps, ITableFieldProps}

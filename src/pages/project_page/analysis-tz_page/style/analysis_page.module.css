@@ -15,7 +15,15 @@
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--color-light-grey) transparent;
+}
 
+.emptyBacklog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    svg {
+        color: var(--color-accent2);
+    }
 }
 
 .backlog {

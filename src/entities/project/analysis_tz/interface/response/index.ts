@@ -22,8 +22,19 @@ interface IUploadFileResponse {
     error?: string;
 }
 
+interface IExportResponseDto {
+    url?: string;
+}
+
+interface IBacklogError {
+    code?: string;
+    message?: string;
+}
+
 export type {
     IAnalysisTZResponse,
     ISaveBacklogResponse,
-    IUploadFileResponse
+    IUploadFileResponse,
+    IExportResponseDto,
+    IBacklogError
 }

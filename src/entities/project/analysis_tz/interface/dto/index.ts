@@ -1,5 +1,25 @@
+enum EExportType {
+    Csv = 'Csv',
+    Xlsx = 'Xlsx'
+}
+
 interface ITableFieldPropsDto {
     value: string;
+}
+
+interface IWorkImportItem {
+    work_number: string;
+    work_type: string;
+    acceptance_criteria?: string;
+}
+
+interface IWorkDto {
+    id: string;
+    workNumber: string;
+    level: number;
+    workType?: string;
+    acceptanceCriteria?: string;
+    childWorks?: IWorkDto[];
 }
 
 interface ITableRowPropsDto  {
@@ -32,8 +52,13 @@ interface IUploadResponseDTO {
     error?: string;
 }
 
+export {
+    EExportType
+}
 export type {
     IBacklogDTO,
+    IWorkDto,
+    IWorkImportItem,
     ISaveResponseDTO,
     IUploadResponseDTO,
     ITableRowPropsDto,

@@ -23,15 +23,25 @@ const AnalysisPage = () => {
         haveDoc,
         fileName,
         fileUrl,
-        initialTableData,
+        tableData,
         updateTableData,
         downloadHandle,
         handleUpload,
         hasChanges,
         isSaving,
         saveChanges,
-        allowedFileTypes
+        allowedFileTypes,
+        isLoading,
+        isUploading
     } = useAnalysisTZPagePresenter()
+
+    if (isLoading) {
+        return (
+            <div className={style.main}>
+                <h2>Загрузка данных...</h2>
+            </div>
+        );
+    }
 
     if (!haveDoc)
         return (
@@ -43,6 +53,12 @@ const AnalysisPage = () => {
                         Загрузить
                     </InputFile>
                 </div>
+                {isUploading && (
+                    <>
+                        <Icon path={ICON_PATH.PROGRESS_ACTIVITY} size={1} spin />
+                        Загрузка...
+                    </>
+                )}
             </div>
         )
 
@@ -91,11 +107,19 @@ const AnalysisPage = () => {
                         </span>
                     </div>
                 )}
+                {tableData.length === 0 ? (
+                        <div className={style.emptyBacklog}>
+                            <Icon path={ICON_PATH.PROGRESS_ACTIVITY} size={3} spin/>
+                            <h3>Бэклог не сформирован</h3>
+                            <p>После анализа ТЗ здесь появится список работ</p>
+                        </div>
+                    ) : (
+                    <BacklogTable
+                        values={tableData}
+                        onDataChange={updateTableData}/>
+                )}
 
-                <BacklogTable
-                    values={initialTableData}
-                    onDataChange={updateTableData}
-                />
+
             </div>
         </div>
     )
