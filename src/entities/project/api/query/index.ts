@@ -13,9 +13,9 @@ const repository = new ProjectRepository(HTTP_APP_SERVICE);
 const useProjectsQuery = () => {
     return useQuery<IProjectDto[], Error>({
         queryKey: [EQueryKeys.PROJECTS+'get-all'],
-        queryFn: () => {
+        queryFn: async () => {
             try {
-                const response = repository.getProjects();
+                const response = await repository.getProjects();
                 return Array.isArray(response) ? response : [];
             } catch (e) {
                 console.error('Error fetching projects:', e);

@@ -74,17 +74,12 @@ const ProjectsPage = () => {
                 </Button>
             </div>
 
-            {isLoading && (
+            {isLoading ? (
                 <div className="w-full h-full flex flex-col pt-5 items-center gap-3">
                     <Icon path={ICON_PATH.PROGRESS_ACTIVITY} size={3} spin/>
                     Загрузка файлов...
                 </div>
-            )}
-            {(projects === undefined || projects.length === 0) ? (
-                <div className="w-full flex flex-col items-center pt-5">
-                    Нет файлов
-                </div>
-            ): (
+            ) : projects.length > 0 ? (
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {projects.map((project) => (
                         <ProjectItem
@@ -94,6 +89,10 @@ const ProjectsPage = () => {
                             onContextMenu={(e: React.MouseEvent) => handleShowContextMenu(e, project.id)}
                         />
                     ))}
+                </div>
+            ) : (
+                <div className="w-full flex flex-col items-center pt-5">
+                    Нет файлов
                 </div>
             )}
         </div>

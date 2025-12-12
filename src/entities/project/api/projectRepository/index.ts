@@ -18,6 +18,8 @@ function getStubProject(id: string, name?: string, clientName?: string, descript
     }
 }
 
+const PROJECTS_API_URL = '/api/project-service/Projects'
+
 class ProjectRepository extends BaseRepository implements IProjectRepository {
     public async getProjectById(projectId: string): Promise<IProjectDto> {
         if (isStub) {
@@ -26,7 +28,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
             const stubProject = getStubProject(projectId);
             return Promise.resolve(stubProject);
         }
-        return await this._httpService.get<IProjectDto>(`/api/Projects/${projectId}`)
+        return await this._httpService.get<IProjectDto>(PROJECTS_API_URL+'/'+projectId)
     }
     public async getProjects(): Promise<IProjectDto[]> {
         if (isStub) {
@@ -39,7 +41,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
             return Promise.resolve(stubProjects);
         }
 
-        return await this._httpService.get<IProjectDto[]>('/api/Projects');
+        return await this._httpService.get<IProjectDto[]>(PROJECTS_API_URL);
     }
     public async createProject(request: ICreateProjectPort): Promise<IProjectDto> {
         if (isStub) {
@@ -58,7 +60,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
             return Promise.resolve(stubProject);
         }
 
-        return await this._httpService.post<IProjectDto>('/api/Projects', {
+        return await this._httpService.post<IProjectDto>(PROJECTS_API_URL, {
             body: request,
             headers: {
                 'Content-Type': 'application/json',
@@ -79,7 +81,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
             });
         }
 
-        return await this._httpService.put<IProjectDto>(`/api/Projects/${project.id}`, {
+        return await this._httpService.put<IProjectDto>(`${PROJECTS_API_URL}/${project.id}`, {
             body: project,
             headers: {
                 'Content-Type': 'application/json',
@@ -94,7 +96,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
             return Promise.resolve()
         }
 
-        return await this._httpService.delete('/api/Projects/' + projectId);
+        return await this._httpService.delete(PROJECTS_API_URL + '/' + projectId);
     }
     public async uploadProjectDocument(projectId: string, file: File): Promise<IProjectDocumentDto> {
         if (isStub) {
@@ -115,7 +117,7 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
         formData.append('file', file);
 
         return await this._httpService.post<IProjectDocumentDto>(
-            `/api/Projects/${projectId}/documents`,
+            `${PROJECTS_API_URL}/${projectId}/documents`,
             {
                 body: formData,
                 headers: {
