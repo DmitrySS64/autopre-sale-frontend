@@ -22,11 +22,11 @@ export default defineConfig({
     ]
   },
   preview: {
-    port: 8080,
+    port: 80,
     strictPort: true,
   },
   server: {
-    port: 8080,
+    port: 80,
     strictPort: true,
     host: true,
     origin: "http://0.0.0.0:8080",

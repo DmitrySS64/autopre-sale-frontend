@@ -7,9 +7,10 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_IS_STUB: "false"
-        VITE_API_URL: "http://localhost:5159"
+        VITE_API_URL: "http://localhost:8080"
     ports:
-      - "8080:80"   # локально открываем 8080 → nginx:80
+      - "80:80"   # локально открываем 80 → nginx:80
+      - "8080:8080"
     environment:
       NODE_ENV: production
     restart: always
