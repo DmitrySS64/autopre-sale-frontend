@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_IS_STUB: "false"
+        VITE_API_URL: "http://localhost:5159"
+    ports:
+      - "8080:80"   # локально открываем 8080 → nginx:80
+    environment:
+      NODE_ENV: production
+    restart: always

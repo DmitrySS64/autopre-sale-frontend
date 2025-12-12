@@ -29,7 +29,7 @@ const useProjectsPresenter = () => {
     }, [setTitle])
 
     const [projects, setProjects] = useState<IProjectDto[]>([]);
-    const {data} = useProjectsQuery()
+    const {data, isLoading} = useProjectsQuery()
     const navigate = useNavigate()
     const { showModal } = useModal();
     const { showContextMenu } = useContextMenu();
@@ -115,6 +115,7 @@ const useProjectsPresenter = () => {
         handleOpenProject,
         handleShowContextMenu,
         handleCreateProject: handleCreateProjectModal,
+        isLoading
     }
 }
 

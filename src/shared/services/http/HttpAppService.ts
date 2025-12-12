@@ -1,6 +1,5 @@
 import {HttpService} from "./HttpService";
-
-const DEFAULT_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import {DEFAULT_URL} from "@shared/api/const";
 
 const HTTP_APP_SERVICE = new HttpService({
     baseURL: DEFAULT_URL,

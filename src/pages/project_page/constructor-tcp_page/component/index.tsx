@@ -17,13 +17,14 @@ const ConstructorPage = () => {
         modalTemplatesProps,
         activeSlide,
         showTemplateModal, setShowTemplateModal,
+        handleGeneratePresentation
     } = useConstructorPagePresenter()
 
     return (
         <div className={style.main}>
             <div className={'flex justify-between px-5'}>
                 <Button outline onClick={() => setShowTemplateModal(true)}>Библиотека блоков</Button>
-                <Button>Сгенерировать ТКП</Button>
+                <Button onClick={handleGeneratePresentation}>Сгенерировать ТКП</Button>
             </div>
             <div className={style.constructorContainer}>
                 <div className={style.leftCol}>

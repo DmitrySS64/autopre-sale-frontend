@@ -3,6 +3,8 @@ import {ProjectItem} from "@/shared/components/projects/projectItem";
 import React, {useCallback} from "react";
 import {useProjectsPresenter} from "@pages/projects_page/presenter";
 import type {ISelectOption} from "@shared/lib/form/component/select/interface";
+import Icon from "@mdi/react";
+import {ICON_PATH} from "@shared/components/images/icons";
 
 const SORT_VALUES: ISelectOption[] = [
         { value: 'recent', label: 'Созданы недавно' },
@@ -17,20 +19,22 @@ const ProjectsPage = () => {
         projects,
         handleOpenProject,
         handleShowContextMenu,
-        handleCreateProject
+        handleCreateProject,
+        isLoading
     } = useProjectsPresenter()
 
     const keyDown = useCallback((e: React.KeyboardEvent) => {
         e.stopPropagation();
         if (e.key === "Enter") {
             e.preventDefault();
-            form.handleSubmit();
+            form.handleSubmit().then();
         }
     }, [form])
 
     return (
         <div className="flex flex-col gap-10 p-10">
-            <div className="flex flex-col xl:flex-row justify-between w-full content-center items-start xl:items-center gap-4 xl:gap-0">
+            <div
+                className="flex flex-col xl:flex-row justify-between w-full content-center items-start xl:items-center gap-4 xl:gap-0">
                 <form className="flex flex-col xl:flex-row gap-4 xl:gap-[50px] w-full xl:w-auto">
                     <form.AppField name={'search'}>
                         {(field) => (
@@ -70,17 +74,28 @@ const ProjectsPage = () => {
                 </Button>
             </div>
 
-            {/* Список проектов */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {projects.map((project) => (
-                    <ProjectItem
-                        key={project.id}
-                        project={project}
-                        onOpen={() => handleOpenProject(project.id)}
-                        onContextMenu={(e: React.MouseEvent) => handleShowContextMenu(e, project.id)}
-                    />
-                ))}
-            </div>
+            {isLoading && (
+                <div className="w-full h-full flex flex-col pt-5 items-center gap-3">
+                    <Icon path={ICON_PATH.PROGRESS_ACTIVITY} size={3} spin/>
+                    Загрузка файлов...
+                </div>
+            )}
+            {(projects === undefined || projects.length === 0) ? (
+                <div className="w-full flex flex-col items-center pt-5">
+                    Нет файлов
+                </div>
+            ): (
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {projects.map((project) => (
+                        <ProjectItem
+                            key={project.id}
+                            project={project}
+                            onOpen={() => handleOpenProject(project.id)}
+                            onContextMenu={(e: React.MouseEvent) => handleShowContextMenu(e, project.id)}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     )
 }

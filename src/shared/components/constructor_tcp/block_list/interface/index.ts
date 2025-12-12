@@ -48,4 +48,4 @@ interface IBlockListProps extends ISlideListProps {
     onBlockUpdate?: (slideId: string, blockId: string, updates: Partial<IBlockItem>) => void;
 }
 
-export type {IBlockListProps, ISlideItem, IBlockItem, ISlideListProps}
+export type {IFieldProps, IBlockListProps, ISlideItem, IBlockItem, ISlideListProps}

@@ -13,7 +13,15 @@ const repository = new ProjectRepository(HTTP_APP_SERVICE);
 const useProjectsQuery = () => {
     return useQuery<IProjectDto[], Error>({
         queryKey: [EQueryKeys.PROJECTS+'get-all'],
-        queryFn: () => repository.getProjects(),
+        queryFn: () => {
+            try {
+                const response = repository.getProjects();
+                return Array.isArray(response) ? response : [];
+            } catch (e) {
+                console.error('Error fetching projects:', e);
+                return [];
+            }
+        },
         staleTime: 5 * 60 * 1000, // 5 минут
     });
 };
