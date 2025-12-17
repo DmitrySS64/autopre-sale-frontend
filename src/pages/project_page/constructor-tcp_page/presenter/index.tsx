@@ -224,7 +224,8 @@ const useConstructorPagePresenter = () => {
         addBlockFromTemplate: addBlockFromTemplateLocal,
         activeSlideId,
         groupedTemplates,
-        updateBlock
+        updateBlock,
+        setHasChanges
     } = useBlockList({
         initialList: convertedInitialList,
         availableTemplates: templatesList?.templates
@@ -394,6 +395,11 @@ const useConstructorPagePresenter = () => {
         }
     }, [moveBlock, showAlert]);
 
+    const handleUnsavedChanges = useCallback((hasChanges: boolean) => {
+        setHasChanges(hasChanges);
+    }, [setHasChanges]);
+
+
     const blockListProps = useMemo<IBlockListProps>(() => ({
         list,
         onSelectSlide: selectSlide,
@@ -412,8 +418,9 @@ const useConstructorPagePresenter = () => {
     const blockEditorProps = useMemo<IBlockEditorProps>(() => ({
         activeBlock,
         activeSlideId,
-        onSave: handleBlockSave
-    }), [activeBlock, activeSlideId, handleBlockSave])
+        onSave: handleBlockSave,
+        onUnsavedChanges: handleUnsavedChanges
+    }), [activeBlock, activeSlideId, handleBlockSave, handleUnsavedChanges])
     
     const modalTemplatesProps = useMemo<IAccordionTKP>(()=> ({
         groupedTemplates,

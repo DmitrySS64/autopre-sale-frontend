@@ -1,7 +1,10 @@
 // useBlockList.ts
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {IBlockItem, ISlideItem} from "@shared/components/constructor_tcp/block_list";
 import type {ITemplateDto, ITemplateFields} from "@entities/block_template/interface/index.dto.ts";
+import {useModal} from "@widgets/modal/use-case";
+import { Button } from '@/shared/components/form/button';
+import {useRouteBlocker} from "@shared/routes/hooks/useRouteBlocker";
 
 interface IUseBlockListProps {
     initialList: ISlideItem[],
@@ -15,8 +18,10 @@ const useBlockList = ({
     const [list, setList] = useState<ISlideItem[]>(initialList);
     const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
     const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
-
     const [templates, setTemplates] = useState<ITemplateDto[]>(availableTemplates);
+    const { showModal, closeModal } = useModal();
+    const originalBlockRef = useRef<IBlockItem | null>(null);
+    const [hasChanges, setHasChanges] = useState(false);
 
     useEffect(() => {
         if (availableTemplates && availableTemplates.length > 0) {
@@ -164,21 +169,61 @@ const useBlockList = ({
         }
     };
 
-    const selectSlide = useCallback((slideId: string) => {
+    const showConfirm = useCallback((action: () => void, message: string) => {
+        const modalId = showModal({
+            title: 'Несохраненные изменения',
+            content: (
+                <div className={'w-full flex flex-col gap-5'}>
+                    <p>{message}</p>
+                    <div className={'w-full flex justify-between'}>
+                        <Button
+                            outline
+                            onClick={()=>{
+                            closeModal(modalId);
+                        }}>
+                            Отмена
+                        </Button>
+                        <Button onClick={()=>{
+                            action();
+                            closeModal(modalId);
+                        }}>
+                            Продолжить без сохранения
+                        </Button>
+                    </div>
+
+                </div>
+            ),
+            canClose: true
+        })
+    }, [showModal, closeModal]);
+
+    // Функции выполнения
+    const executeSelectSlide = useCallback((slideId: string) => {
         setActiveSlideId(slideId);
         setActiveBlockId(null);
-        
+
         setList(prev => prev.map(slide => ({
             ...slide,
             isActive: slide.id === slideId,
             blocks: slide.blocks?.map(block => ({
                 ...block,
-                isActive: false // Сбрасываем активность блоков
+                isActive: false
             }))
         })));
     }, []);
-    
-    const selectBlock = useCallback((blockId: string, slideId: string) => {
+
+    const selectSlide = useCallback((slideId: string) => {
+        if (hasChanges && activeSlideId !== slideId) {
+            showConfirm(() => {
+                executeSelectSlide(slideId);
+            }, "У вас есть несохраненные изменения. Перейти к другому слайду без сохранения?");
+            return;
+        }
+
+        executeSelectSlide(slideId);
+    }, [activeSlideId, executeSelectSlide, hasChanges, showConfirm]);
+
+    const executeSelectBlock = useCallback((blockId: string, slideId: string) => {
         setActiveBlockId(blockId);
         setActiveSlideId(slideId);
 
@@ -186,14 +231,13 @@ const useBlockList = ({
             if (slide.id === slideId) {
                 return {
                     ...slide,
-                    isActive: true, // Помечаем слайд как активный
+                    isActive: true,
                     blocks: slide.blocks?.map(block => ({
                         ...block,
                         isActive: block.id === blockId
                     }))
                 };
             }
-            // Для остальных слайдов сбрасываем активность
             return {
                 ...slide,
                 isActive: false,
@@ -202,8 +246,19 @@ const useBlockList = ({
                     isActive: false
                 }))
             };
-        }))
+        }));
     }, []);
+
+    const selectBlock = useCallback((blockId: string, slideId: string) => {
+        if (hasChanges && activeBlockId !== blockId) {
+            showConfirm(() => {
+                executeSelectBlock(blockId, slideId);
+            }, "У вас есть несохраненные изменения. Перейти к другому блоку без сохранения?");
+            return;
+        }
+
+        executeSelectBlock(blockId, slideId);
+    }, [activeBlockId, executeSelectBlock, hasChanges, showConfirm]);
 
 
     const addBlockFromTemplate = useCallback((template: ITemplateDto) => {
@@ -363,6 +418,45 @@ const useBlockList = ({
         }));
     }, []);
 
+    useEffect(() => {
+        if (activeBlock) {
+            originalBlockRef.current = JSON.parse(JSON.stringify(activeBlock));
+            setHasChanges(false);
+        }
+    }, [activeBlock]);
+
+    // Проверяем изменения
+    const checkForChanges = useCallback((currentBlock: IBlockItem | null): boolean => {
+        if (!currentBlock || !originalBlockRef.current) return false;
+
+        const original = originalBlockRef.current;
+
+        // Проверяем заголовок
+        if (currentBlock.title !== original.title) return true;
+
+        // Проверяем поля
+        if (currentBlock.fields && original.fields) {
+            for (let i = 0; i < currentBlock.fields.length; i++) {
+                if (currentBlock.fields[i].value !== original.fields[i].value) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }, []);
+
+    // Обновляем состояние при изменении активного блока
+    useEffect(() => {
+        if (activeBlock) {
+            const changed = checkForChanges(activeBlock);
+            setHasChanges(changed);
+        }
+    }, [activeBlock, checkForChanges]);
+
+
+    useRouteBlocker(hasChanges)
+
     return {
         list,
         moveBlock,
@@ -380,7 +474,9 @@ const useBlockList = ({
         updateBlockTitle,
         updateBlockFieldValue,
         addBlockFromTemplate,
-        updateBlock
+        updateBlock,
+        hasChanges,
+        setHasChanges
     };
 };
 

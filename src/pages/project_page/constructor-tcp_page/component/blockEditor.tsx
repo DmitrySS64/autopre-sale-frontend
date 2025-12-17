@@ -12,12 +12,14 @@ interface IBlockEditorProps {
     onSave?: (blockId: string, slideId: string, updates: Partial<IBlockItem>) => void,
     onUpdate?: (blockId: string, slideId: string, fieldName: string, value: string) => void,
     activeSlideId: string | null,
+    onUnsavedChanges?: (hasChanges: boolean) => void,
 }
 
 const BlockEditor = ({
     activeBlock,
     onSave,
-    activeSlideId
+    activeSlideId,
+    onUnsavedChanges
 }: IBlockEditorProps) => {
     const {showAlert} = useAlert();
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(true);
@@ -62,12 +64,21 @@ const BlockEditor = ({
         return errors;
     }, []);
 
+    //useEffect(() => {
+    //    if (onUnsavedChanges) {
+    //        onUnsavedChanges(hasUnsavedChanges);
+    //    }
+    //}, [hasUnsavedChanges, onUnsavedChanges]);
+    
     useEffect(() => {
         if(activeBlock){
             setLocalBlock({...activeBlock})
             setHasUnsavedChanges(false);
+            if (onUnsavedChanges) {
+                onUnsavedChanges(false);
+            }
         }
-    }, [activeBlock]);
+    }, [activeBlock, onUnsavedChanges]);
     
     const handleSave = useCallback(() => {
         if (!localBlock || !activeBlock || !onSave || !activeSlideId) return;
@@ -90,9 +101,12 @@ const BlockEditor = ({
 
         onSave(activeBlock.id, activeSlideId, updates);
         setHasUnsavedChanges(false);
+        if (onUnsavedChanges) {
+            onUnsavedChanges(false);
+        }
         setShowValidationErrors(false);
         showAlert('Изменения сохранены');
-    }, [activeBlock, activeSlideId, localBlock, onSave, showAlert, validateFields])
+    }, [activeBlock, activeSlideId, localBlock, onSave, onUnsavedChanges, showAlert, validateFields])
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -115,6 +129,9 @@ const BlockEditor = ({
 
         setLocalBlock(prev => prev ? {...prev, title: value} : null);
         setHasUnsavedChanges(true);
+        if (onUnsavedChanges) {
+            onUnsavedChanges(true);
+        }
 
         // Если есть поле title в fields, обновляем его тоже
         const titleFieldInFields = localBlock.fields?.find(f => f.name === 'title');
@@ -138,7 +155,7 @@ const BlockEditor = ({
                 return newErrors;
             });
         }
-    }, [localBlock, validationErrors]);
+    }, [localBlock, onUnsavedChanges, validationErrors]);
 
     // Обработчик изменения поля
     const handleFieldChange = useCallback((fieldId: string, value: string) => {
@@ -155,6 +172,9 @@ const BlockEditor = ({
             };
         });
         setHasUnsavedChanges(true);
+        if (onUnsavedChanges) {
+            onUnsavedChanges(true);
+        }
 
         // Если есть поле с именем "title", обновляем и заголовок блока
         const changedField = localBlock.fields.find(f => f.id === fieldId);
@@ -182,7 +202,7 @@ const BlockEditor = ({
                 return newErrors;
             });
         }
-    }, [localBlock, showValidationErrors, validationErrors, handleTitleChange, validateFields]);
+    }, [localBlock, onUnsavedChanges, showValidationErrors, validationErrors, handleTitleChange, validateFields]);
 
     const titleField = useMemo(() => {
         if (!localBlock?.fields) return null;
