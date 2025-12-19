@@ -30,7 +30,7 @@ const useProjectsQuery = () => {
 const useProjectQuery = (projectId: string) => {
     return useQuery<IProjectDto, Error>({
         queryKey: [EQueryKeys.PROJECTS, projectId],
-        queryFn: () => repository.getProjectById(projectId),
+        queryFn: async () => repository.getProjectById(projectId),
         enabled: !!projectId,
         staleTime: 5 * 60 * 1000,
     });
@@ -67,7 +67,7 @@ const useEditProjectMutation = () => {
         mutationFn: (request) => repository.editProject(request),
         onSuccess: (data) => {
             // Инвалидируем кэш проектов
-            queryClient.invalidateQueries({ queryKey: [EQueryKeys.PROJECTS] });
+            queryClient.invalidateQueries({ queryKey: [EQueryKeys.PROJECTS+'get-all'] });
             // Обновляем конкретный проект в кэше
             queryClient.setQueryData([EQueryKeys.PROJECTS, data.id], data);
         },
@@ -82,7 +82,7 @@ const useDeleteProjectMutation = () => {
         mutationFn: (projectId) => repository.deleteProject(projectId),
         onSuccess: (_, projectId) => {
             // Инвалидируем кэш проектов
-            queryClient.invalidateQueries({ queryKey: [EQueryKeys.PROJECTS] });
+            queryClient.invalidateQueries({ queryKey: [EQueryKeys.PROJECTS+'get-all'] });
             // Удаляем проект из кэша
             queryClient.removeQueries({ queryKey: [EQueryKeys.PROJECTS, projectId] });
         },

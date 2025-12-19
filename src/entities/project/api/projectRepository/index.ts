@@ -20,6 +20,7 @@ function getStubProject(id: string, name?: string, clientName?: string, descript
 
 const PROJECTS_API_URL = '/api/project-service/Projects'
 
+
 class ProjectRepository extends BaseRepository implements IProjectRepository {
     public async getProjectById(projectId: string): Promise<IProjectDto> {
         if (isStub) {

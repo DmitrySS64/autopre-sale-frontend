@@ -13,8 +13,8 @@ enum EMutationKeys {
 }
 
 enum EAuthAPI {
-    ROOT = "/api/Auth/",
-    GET_ME = `${ROOT}get-me`,
+    ROOT = "/api/auth-service/Auth/",
+    GET_ME = `${ROOT}me`,
     REGISTER = `${ROOT}register`,
     SIGN_IN = `${ROOT}login`,
     SIGN_OUT = `${ROOT}sign-out`,

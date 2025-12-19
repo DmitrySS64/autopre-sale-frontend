@@ -6,7 +6,8 @@ interface IProjectDto {
     clientName: string;
     status: EProjectStatus;
     description?: string;
-    documents?: IProjectDocumentDto[]
+    document?: IProjectDocumentDto; // Backend возвращает единственный документ
+    documents?: IProjectDocumentDto[]; // Для обратной совместимости
     createdAt: string;
     updatedAt: string;
 }

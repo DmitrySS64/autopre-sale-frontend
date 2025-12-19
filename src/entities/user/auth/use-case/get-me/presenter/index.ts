@@ -1,11 +1,20 @@
 import { useGetMeRequest } from '../request'
-import {ELocalStorageKeys} from "@shared/enum/storage";
+import {CookieService} from "@shared/services/cookie/CookieService.ts";
+import {ECookieKey} from "@shared/services/cookie/ECookieKey.ts";
+
+const cookieService = new CookieService();
 
 const useGetMePresenter = () => {
-    const token = localStorage.getItem(ELocalStorageKeys.AUTH_TOKEN)
+    let hasToken = false;
+    try {
+        cookieService.get(ECookieKey.ACCESS_TOKEN);
+        hasToken = true;
+    } catch {
+        hasToken = false;
+    }
 
     const query = useGetMeRequest({
-        enabled: !!token,
+        enabled: hasToken,
     })
 
     const data = query.data ?? null

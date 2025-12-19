@@ -3,7 +3,8 @@ import {HTTP_APP_SERVICE} from "@shared/services/http/HttpAppService.ts";
 import {useQuery, type UseQueryResult} from "@tanstack/react-query";
 import {EQueryKeys} from "@shared/enum/query";
 import type {IGetMeDto} from "@entities/user/auth/interface/dto";
-import {ELocalStorageKeys} from "@shared/enum/storage";
+import {CookieService} from "@shared/services/cookie/CookieService.ts";
+import {ECookieKey} from "@shared/services/cookie/ECookieKey.ts";
 import ERouterPath from "@shared/routes";
 
 
@@ -14,6 +15,7 @@ interface IGetMeRequestOptions {
 }
 
 const repository = new AuthRepository(HTTP_APP_SERVICE);
+const cookieService = new CookieService();
 
 function useGetMeRequest({
     enabled = false,
@@ -23,7 +25,8 @@ function useGetMeRequest({
             return repository.getMe()
         } catch (error) {
             if (error?.status === 401 || error?.message?.includes('accessToken')) {
-                localStorage.removeItem(ELocalStorageKeys.AUTH_TOKEN);
+                cookieService.remove(ECookieKey.ACCESS_TOKEN);
+                cookieService.remove(ECookieKey.REFRESH_TOKEN);
                 window.location.href = ERouterPath.AUTHORIZATION_PAGE;
             }
             throw error;

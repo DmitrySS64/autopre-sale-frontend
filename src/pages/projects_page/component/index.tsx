@@ -90,10 +90,10 @@ const ProjectsPage = () => {
                         />
                     ))}
                 </div>
-            ) : (
-                <div className="w-full flex flex-col items-center pt-5">
-                    Нет файлов
-                </div>
+                ) : (
+                    <div className="w-full flex flex-col items-center pt-5">
+                        Нет файлов
+                    </div>
             )}
         </div>
     )

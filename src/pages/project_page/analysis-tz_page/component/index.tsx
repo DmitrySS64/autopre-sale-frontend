@@ -119,11 +119,10 @@ const AnalysisPage = () => {
                             onDataChange={updateTableData}/>
                     ) : (
                         <div className={style.emptyBacklog}>
-                            <h3>Нет данных... Возможно произошла ошибка</h3>
-                            <Button>Проанализировать снова</Button>
-                        </div>
-                    )
-                }
+                        <h3>Нет данных... Возможно произошла ошибка</h3>
+                        <Button>Проанализировать снова</Button>
+                    </div>
+                )}
 
 
             </div>

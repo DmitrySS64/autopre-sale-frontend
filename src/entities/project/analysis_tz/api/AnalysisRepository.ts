@@ -1,6 +1,6 @@
 import {
     EExportType,
-    type IAnalysisTZResponse, type IExportResponseDto,
+    type IAnalysisTZResponse,
     type ISaveBacklogResponse, type IWorkDto
 } from "@entities/project/analysis_tz/interface";
 import {BaseRepository} from "@shared/api/http/BaseRepository.ts";
@@ -9,9 +9,11 @@ import type {
     IDownloadBacklogPort,
     ISaveBacklogPort,
 } from "@entities/project/analysis_tz/interface";
-import {IS_STUB as isStub} from "@shared/api/const";
+import {IS_STUB as isStub, DEFAULT_URL} from "@shared/api/const";
 import {tableRowDtosToWorkDtos, workDtosToTableRowDtos} from "@entities/project/analysis_tz/utils/converter.ts";
-import type {IProjectDocumentDto, IProjectDto} from "@entities/project/interface/dto";
+import type {IProjectDto} from "@entities/project/interface/dto";
+import {CookieService} from "@shared/services/cookie/CookieService.ts";
+import {ECookieKey} from "@shared/services/cookie/ECookieKey.ts";
 
 const stubWorks: IWorkDto[] = [
     {
@@ -68,7 +70,7 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
         try {
             // Запрос к Backlog API
             const works = await this._httpService.get<IWorkDto[]>(
-                `/api/Backlog/${projectId}`
+                `/api/backlog-service/Backlog/${projectId}`
             );
 
             const tableRowDtos = workDtosToTableRowDtos(works);
@@ -130,7 +132,7 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
 
             // Отправляем на сервер
             await this._httpService.put(
-                `/api/Backlog/${port.projectId}`,
+                `/api/backlog-service/Backlog/${port.projectId}`,
                 {
                     body: workDtos,
                     headers: {
@@ -164,21 +166,40 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
 
         try {
             const exportType: EExportType = port.format === 'csv' ? EExportType.Csv : EExportType.Xlsx;
-
-            const response = await this._httpService.get<IExportResponseDto>(
-                `/api/Backlog/${port.projectId}/export`,
-                {
-                    params: { type: exportType }
-                }
-            );
-
-            // Если сервер возвращает URL, скачиваем по нему
-            if (response.url) {
-                const blobResponse = await fetch(response.url);
-                return await blobResponse.blob();
+            const cookieService = new CookieService();
+            
+            let accessToken: string = '';
+            try {
+                accessToken = cookieService.get(ECookieKey.ACCESS_TOKEN);
+            } catch (error) {
+                console.error('Failed to get access token from cookies:', error);
+                throw new Error('Токен авторизации не найден. Пожалуйста, войдите в систему заново.');
             }
 
-            throw new Error('URL для скачивания не получен');
+            if (!accessToken) {
+                throw new Error('Токен авторизации пустой. Пожалуйста, войдите в систему заново.');
+            }
+            
+            const url = new URL(`/api/backlog-service/Backlog/${port.projectId}/export`, DEFAULT_URL);
+            url.searchParams.append('type', exportType);
+
+            const headers: HeadersInit = {
+                'Authorization': `Bearer ${accessToken}`
+            };
+
+            const response = await fetch(url.toString(), {
+                method: 'GET',
+                headers,
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Export response error:', response.status, errorText);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+            }
+
+            return await response.blob();
         } catch (error) {
             console.error('Error exporting backlog:', error);
             throw new Error(`Ошибка экспорта: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
@@ -198,37 +219,19 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
             };
         }
 
-        // Здесь нужно получить информацию о проекте и документе
+        // Получаем информацию о проекте, который уже содержит документ
         try {
-            // Предполагаем, что есть эндпоинт для получения проекта
-            const project = await this._httpService.get<IProjectDto>(`/api/Projects/${projectId}`);
+            const project = await this._httpService.get<IProjectDto>(`/api/project-service/Projects/${projectId}`);
 
-            // Здесь нужно также получить информацию о документе ТЗ
-            // Это может быть отдельный запрос или часть ответа проекта
-            // Предположим, что есть эндпоинт для получения документов проекта
-            try {
-                const documents = await this._httpService.get<IProjectDocumentDto[]>(
-                    `/api/Projects/${projectId}/documents`
-                );
+            // Backend возвращает документ в поле Document (единственный документ)
+            // Поддерживаем оба варианта для обратной совместимости
+            const document = project.document || project.documents?.[0];
 
-                // Ищем документ ТЗ (может быть фильтр по типу)
-                const tzDocument = documents.find(doc =>
-                    doc.fileName?.includes('tz') ||
-                    doc.fileName?.includes('техническое') ||
-                    doc.fileName?.includes('specification')
-                );
-
-                return {
-                    projectName: project.name,
-                    fileName: tzDocument?.fileName,
-                    fileUrl: tzDocument?.fileUrl
-                };
-            } catch {
-                // Если не удалось получить документы
-                return {
-                    projectName: project.name
-                };
-            }
+            return {
+                projectName: project.name,
+                fileName: document?.fileName,
+                fileUrl: document?.fileUrl
+            };
         } catch {
             // Если не удалось получить проект
             return {
