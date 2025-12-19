@@ -34,7 +34,7 @@ const useAnalysisTZPagePresenter = () => {
     const {
         data,
         refetch,
-        isLoading: isDataLoading
+        isLoading: isDataLoading,
     } = useAnalysisPageRequest({
         projectId: projectState.projectId,
         enabled: !!projectState.projectId

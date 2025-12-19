@@ -107,16 +107,21 @@ const AnalysisPage = () => {
                         </span>
                     </div>
                 )}
-                {tableData.length === 0 ? (
+                {isLoading ? (
                         <div className={style.emptyBacklog}>
                             <Icon path={ICON_PATH.PROGRESS_ACTIVITY} size={3} spin/>
                             <h3>Бэклог не сформирован</h3>
                             <p>После анализа ТЗ здесь появится список работ</p>
                         </div>
+                    ) : tableData.length > 0 ? (
+                        <BacklogTable
+                            values={tableData}
+                            onDataChange={updateTableData}/>
                     ) : (
-                    <BacklogTable
-                        values={tableData}
-                        onDataChange={updateTableData}/>
+                        <div className={style.emptyBacklog}>
+                        <h3>Нет данных... Возможно произошла ошибка</h3>
+                        <Button>Проанализировать снова</Button>
+                    </div>
                 )}
 
 
