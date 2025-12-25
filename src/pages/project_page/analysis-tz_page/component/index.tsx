@@ -27,6 +27,7 @@ const AnalysisPage = () => {
         updateTableData,
         downloadHandle,
         handleUpload,
+        handleReanalyze,
         hasChanges,
         isSaving,
         saveChanges,
@@ -120,7 +121,7 @@ const AnalysisPage = () => {
                     ) : (
                         <div className={style.emptyBacklog}>
                         <h3>Нет данных... Возможно произошла ошибка</h3>
-                        <Button>Проанализировать снова</Button>
+                        <Button onClick={handleReanalyze}>Проанализировать снова</Button>
                     </div>
                 )}
 

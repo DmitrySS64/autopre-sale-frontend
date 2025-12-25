@@ -127,6 +127,16 @@ class ProjectRepository extends BaseRepository implements IProjectRepository {
             }
         );
     }
+
+    public async deleteProjectDocument(projectId: string, documentId: string): Promise<void> {
+        if (isStub) {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            console.log('Удаление документа:', documentId, 'из проекта:', projectId);
+            return Promise.resolve();
+        }
+
+        return await this._httpService.delete(`${PROJECTS_API_URL}/${projectId}/documents/${documentId}`);
+    }
 }
 
 export {ProjectRepository}

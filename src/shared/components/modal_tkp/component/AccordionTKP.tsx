@@ -14,6 +14,16 @@ const AccordionTKP: React.FC<IAccordionTKP> = ({
     isLoading
 }) => {
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  
+  // Логируем данные при изменении
+  React.useEffect(() => {
+    console.log('AccordionTKP props:', {
+      isLoading,
+      groupedTemplatesKeys: Object.keys(groupedTemplates || {}),
+      groupedTemplates: groupedTemplates,
+      hasAddBlock: !!addBlock
+    });
+  }, [groupedTemplates, isLoading, addBlock]);
 
   const toggleItem = (id: string) => {
     setOpenItems(prev => {
@@ -71,7 +81,7 @@ const AccordionTKP: React.FC<IAccordionTKP> = ({
             <div className="accordion-item-content">
               {groupedTemplates[category] && groupedTemplates[category].length > 0 ? (
                   <div className="content-grid">
-                    {groupedTemplates[category].map((template, index) =>  (
+                    {(groupedTemplates[category] || []).map((template, index) =>  (
                         <div
                             key={index}
                             className={'w-full h-full flex flex-col gap-0 items-center hover:bg-gray-100 p-2 rounded-md'}

@@ -1,7 +1,7 @@
 // useBlockList.ts
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {IBlockItem, ISlideItem} from "@shared/components/constructor_tcp/block_list";
-import type {ITemplateDto, ITemplateFields} from "@entities/block_template/interface/index.dto.ts";
+import type {ITemplateDto, ITemplateField} from "@entities/block_template/interface/index.dto.ts";
 
 interface IUseBlockListProps {
     initialList: ISlideItem[],
@@ -17,6 +17,18 @@ const useBlockList = ({
     const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
 
     const [templates, setTemplates] = useState<ITemplateDto[]>(availableTemplates);
+    
+    // Обновляем list когда изменяется initialList (например, когда загружаются слайды с API)
+    useEffect(() => {
+        console.log('useBlockList: initialList changed', { 
+            newLength: initialList.length,
+            currentLength: list.length 
+        });
+        // Обновляем только если получили новые данные или список пуст
+        if (initialList.length > 0) {
+            setList(initialList);
+        }
+    }, [initialList, list.length]);
 
     useEffect(() => {
         if (availableTemplates && availableTemplates.length > 0) {
@@ -30,7 +42,7 @@ const useBlockList = ({
 
     const activeBlock = useMemo(() => {
         if (!activeSlide || !activeBlockId) return null;
-        return activeSlide.blocks?.find(block => block.id === activeBlockId) || null;
+        return (activeSlide.blocks || []).find(block => block.id === activeBlockId) || null;
     }, [activeSlide, activeBlockId]);
 
     const generateId = useCallback((prefix: string) => {
@@ -42,7 +54,7 @@ const useBlockList = ({
             if (slide.id === slideId) {
                 return {
                     ...slide,
-                    blocks: slide.blocks?.map(block =>
+                    blocks: (slide.blocks || []).map(block =>
                         block.id === blockId
                             ? { ...block, title: newTitle }
                             : block
@@ -58,7 +70,7 @@ const useBlockList = ({
             if (slide.id === slideId) {
                 return {
                     ...slide,
-                    blocks: slide.blocks?.map(block => {
+                    blocks: (slide.blocks || []).map(block => {
                         if (block.id === blockId && block.fields) {
                             return {
                                 ...block,
@@ -78,32 +90,41 @@ const useBlockList = ({
     }, []);
 
     const convertTemplateFieldsToBlockFields = useCallback((
-        templateFields: ITemplateFields,
+        templateFields: ITemplateField[] | undefined,
         templateId: string
     ): IBlockItem['fields'] => {
-        return Object.entries(templateFields).map(([fieldName, templateField], index) => ({
-            id: `${templateId}-${fieldName}-${index}`,
-            name: fieldName,
-            label: templateField.label || fieldName,
-            type: templateField.type,
+        if (!templateFields || !Array.isArray(templateFields)) {
+            return [];
+        }
+        return templateFields.map((templateField, index) => ({
+            id: `${templateId}-${templateField.key}-${index}`,
+            name: templateField.key,
+            label: templateField.key.charAt(0).toUpperCase() + templateField.key.slice(1),
+            type: templateField.type as any, // Convert to compatible type
             required: templateField.required || false,
-            value: templateField.defaultValue?.toString() || '',
-            placeholder: templateField.placeholderName,
-            options: templateField.options
+            value: '',
+            placeholder: templateField.placeholder,
+            options: undefined
         }));
     }, []);
 
     const createBlockFromTemplate = useCallback((template: ITemplateDto): IBlockItem => {
         const blockId = generateId('block');
 
+        console.log('createBlockFromTemplate:', {
+            template,
+            templateFields: template.fields,
+            templateFieldsIsArray: Array.isArray(template.fields)
+        });
+
         return {
             id: blockId,
-            title: template.name,
+            title: template.name || 'Новый блок',
             isActive: false,
             order: 0, // Будет установлен при добавлении в слайд
             fields: convertTemplateFieldsToBlockFields(template.fields, template.id),
             templateId: template.id,
-            templateCode: template.code
+            templateCode: template.code || template.id
         };
     }, [generateId, convertTemplateFieldsToBlockFields]);
 
@@ -122,7 +143,7 @@ const useBlockList = ({
             let blockData: IBlockItem | null = null;
 
             newList.forEach((slide, sIndex) => {
-                slide.blocks?.forEach((block, bIndex) => {
+                (slide.blocks || []).forEach((block, bIndex) => {
                     if (block.id === blockId) {
                         sourceSlideIndex = sIndex;
                         blockIndex = bIndex;
@@ -136,7 +157,7 @@ const useBlockList = ({
             // Удаляем из исходного слайда
             newList[sourceSlideIndex] = {
                 ...newList[sourceSlideIndex],
-                blocks: newList[sourceSlideIndex].blocks?.filter((_, i) => i !== blockIndex) || []
+                blocks: (newList[sourceSlideIndex].blocks || []).filter((_, i) => i !== blockIndex)
             };
 
             // Добавляем в целевой слайд
@@ -171,7 +192,7 @@ const useBlockList = ({
         setList(prev => prev.map(slide => ({
             ...slide,
             isActive: slide.id === slideId,
-            blocks: slide.blocks?.map(block => ({
+            blocks: (slide.blocks || []).map(block => ({
                 ...block,
                 isActive: false // Сбрасываем активность блоков
             }))
@@ -187,7 +208,7 @@ const useBlockList = ({
                 return {
                     ...slide,
                     isActive: true, // Помечаем слайд как активный
-                    blocks: slide.blocks?.map(block => ({
+                    blocks: (slide.blocks || []).map(block => ({
                         ...block,
                         isActive: block.id === blockId
                     }))
@@ -197,7 +218,7 @@ const useBlockList = ({
             return {
                 ...slide,
                 isActive: false,
-                blocks: slide.blocks?.map(block => ({
+                blocks: (slide.blocks || []).map(block => ({
                     ...block,
                     isActive: false
                 }))
@@ -282,7 +303,7 @@ const useBlockList = ({
     const handleDeleteBlock = useCallback((blockId: string, slideId: string) => {
         setList(prev => prev.map(slide => {
             if (slide.id === slideId) {
-                const newBlocks = slide.blocks?.filter(block => block.id !== blockId) || [];
+                const newBlocks = (slide.blocks || []).filter(block => block.id !== blockId);
                 return {
                     ...slide,
                     blocks: newBlocks
@@ -306,9 +327,11 @@ const useBlockList = ({
             'Бюджет': []
         };
 
-        templates.forEach(template => {
-            const code = template.code.toLowerCase();
-            const name = template.name.toLowerCase();
+        (templates || []).forEach(template => {
+            if (!template) return;
+            
+            const code = (template.code || '').toLowerCase();
+            const name = (template.name || '').toLowerCase();
 
             if (code.includes('overview') || name.includes('описание')) {
                 grouped['Описание'].push(template);
@@ -340,7 +363,7 @@ const useBlockList = ({
             if (slide.id === slideId) {
                 return {
                     ...slide,
-                    blocks: slide.blocks?.map(block => {
+                    blocks: (slide.blocks || []).map(block => {
                         if (block.id === blockId) {
                             // Обновляем title если он есть в updates
                             const updatedBlock = { ...block, ...updates };

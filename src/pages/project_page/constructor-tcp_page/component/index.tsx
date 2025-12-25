@@ -19,11 +19,17 @@ const ConstructorPage = () => {
         showTemplateModal, setShowTemplateModal,
         handleGeneratePresentation
     } = useConstructorPagePresenter()
+    
+    const handleOpenModal = () => {
+        console.log('Opening template modal, current state:', showTemplateModal);
+        console.log('Modal templates props:', modalTemplatesProps);
+        setShowTemplateModal(true);
+    };
 
     return (
         <div className={style.main}>
             <div className={'flex justify-between px-5'}>
-                <Button outline onClick={() => setShowTemplateModal(true)}>Библиотека блоков</Button>
+                <Button outline onClick={handleOpenModal}>Библиотека блоков</Button>
                 <Button onClick={handleGeneratePresentation}>Сгенерировать ТКП</Button>
             </div>
             <div className={style.constructorContainer}>

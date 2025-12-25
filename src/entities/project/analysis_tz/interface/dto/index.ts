@@ -23,6 +23,7 @@ interface IWorkDto {
 }
 
 interface ITableRowPropsDto  {
+    id?: string;
     workNumber: string;
     level?: '1' | '2' | '3';
     rowValues?: ITableFieldPropsDto[];
