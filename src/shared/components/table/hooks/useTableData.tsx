@@ -30,7 +30,7 @@ const useTableData = (initialValues?: ITableRowProps[]) => {
             ]
         },
     ]
-    const [tableData, setTableData] = useState<ITableRowProps[]>(()=> initialValues  || defaultData);
+    const [tableData, setTableData] = useState<ITableRowProps[]>(()=> initialValues || defaultData);
 
     const updateTableData = useCallback((updater: (data: ITableRowProps[]) => ITableRowProps[]) => {
         setTableData(prev => updater([...prev]));

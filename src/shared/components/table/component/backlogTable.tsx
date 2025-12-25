@@ -37,11 +37,6 @@ const BacklogTable = ({
     } = useTablePresenter(values);
 
     useEffect(() => {
-        console.log(values);
-        console.log('Данные обновлены');
-    }, [values]);
-
-    useEffect(() => {
         if (onDataChange) {
             onDataChange(tableData);
         }

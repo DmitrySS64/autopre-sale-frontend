@@ -73,40 +73,7 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
                 `/api/backlog-service/Backlog/${projectId}`
             );
 
-            // Отладка: проверяем данные с бэкенда
-            console.log('=== Received from backend ===');
-            console.log('Total root works:', works.length);
-            works.forEach((work, index) => {
-                console.log(`Work ${index}:`, {
-                    id: work.id,
-                    workNumber: work.workNumber,
-                    childWorksCount: work.childWorks?.length || 0
-                });
-                if (work.childWorks) {
-                    work.childWorks.forEach((child, childIndex) => {
-                        console.log(`  Child ${childIndex}:`, {
-                            id: child.id,
-                            workNumber: child.workNumber,
-                            hasChildren: !!child.childWorks
-                        });
-                    });
-                }
-            });
-            console.log('============================');
-
             const tableRowDtos = workDtosToTableRowDtos(works);
-
-            // Отладка: проверяем после конвертации
-            console.log('=== After conversion ===');
-            console.log('Total table rows:', tableRowDtos.length);
-            tableRowDtos.forEach((row, index) => {
-                console.log(`Row ${index}:`, {
-                    id: row.id,
-                    workNumber: row.workNumber,
-                    childrenCount: row.children?.length || 0
-                });
-            });
-            console.log('========================');
 
             // Здесь нужно также получить информацию о файле ТЗ
             // Предполагаем, что есть отдельный эндпоинт для этого
@@ -164,7 +131,6 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
             const workDtos = tableRowDtosToWorkDtos(port.backlogData);
 
             // Отладка: показываем что отправляем
-            console.log('=== Saving backlog ===');
             console.log('Total works to save:', workDtos.length);
             workDtos.forEach((work, index) => {
                 console.log(`Work ${index}:`, {
@@ -202,7 +168,7 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
                 timestamp: new Date().toISOString()
             };
         } catch (error) {
-            console.error('Error saving backlog:', error);
+            console.error('Failed to save backlog:', error);
             return {
                 status: "ERROR",
                 message: error instanceof Error ? error.message : 'Ошибка сохранения',
@@ -256,7 +222,7 @@ class AnalysisRepository extends BaseRepository implements IAnalysisTZRepository
 
             return await response.blob();
         } catch (error) {
-            console.error('Error exporting backlog:', error);
+            console.error('Failed to export backlog:', error);
             throw new Error(`Ошибка экспорта: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
         }
     }
