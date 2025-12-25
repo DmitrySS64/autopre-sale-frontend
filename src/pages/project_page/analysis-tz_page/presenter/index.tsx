@@ -21,6 +21,7 @@ import Icon from "@mdi/react";
 import {ICON_PATH} from "@shared/components/images/icons";
 import {ProjectRepository} from "@entities/project/api/projectRepository";
 import {HTTP_APP_SERVICE} from "@shared/services/http/HttpAppService";
+import {useProjectEvents} from "@entities/project/api/useProjectEvents";
 
 
 const ALLOWED_FILE_TYPES = ['.doc', '.docx', '.pdf'];
@@ -69,6 +70,27 @@ const useAnalysisTZPagePresenter = () => {
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
     const lastSavedDataRef = useRef<ITableRowProps[]>([]);
+
+    // Polling для real-time обновлений статуса анализа
+    const { analysisStatus, error: analysisError, isPolling, resetStatus } = useProjectEvents({
+        projectId: projectState.projectId || '',
+        onAnalysisCompleted: useCallback(async () => {
+            console.log('[AnalysisTZPage] Analysis completed event received');
+            showAlert('Анализ завершён! Загружаем бэклог...', EAlertType.SUCCESS);
+            
+            // Даем backend немного времени для сохранения бэклога
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Загружаем бэклог и обновляем данные проекта
+            await Promise.all([refetch(), refetchProject()]);
+            
+            console.log('[AnalysisTZPage] Backlog data refetched');
+        }, [refetch, refetchProject, showAlert]),
+        onAnalysisFailed: useCallback((error: string) => {
+            console.error('[AnalysisTZPage] Analysis failed:', error);
+            showAlert(`Ошибка анализа: ${error}`, EAlertType.ERROR);
+        }, [showAlert])
+    });
 
     // Проверка формата файла
     const isValidFileType = useCallback((file: File): boolean => {
@@ -157,6 +179,26 @@ const useAnalysisTZPagePresenter = () => {
             }
         }
     }, [data, processAnalysisResponse, setTitle]);
+
+    // Синхронизация состояния документа с реальными данными из projectData
+    useEffect(() => {
+        if (projectData) {
+            const documents = projectData.documents || (projectData.document ? [projectData.document] : []);
+            
+            if (documents.length > 0) {
+                const doc = documents[0];
+                console.log('[useEffect] Syncing document state from projectData:', doc);
+                setHaveDocument(true);
+                setFileName(doc.fileName);
+                setFileUrl(doc.fileUrl || null);
+            } else {
+                console.log('[useEffect] No documents in projectData, clearing state');
+                setHaveDocument(false);
+                setFileName(null);
+                setFileUrl(null);
+            }
+        }
+    }, [projectData]);
 
     // Сравнение данных для определения изменений
     const checkForChanges = useCallback((currentData: ITableRowProps[]) => {
@@ -310,6 +352,33 @@ const useAnalysisTZPagePresenter = () => {
         try {
             setIsProcessing(true);
 
+            // Обновляем данные проекта перед загрузкой, чтобы получить актуальный список документов
+            await refetchProject();
+            const freshProjectData = projectData; // используем свежие данные
+
+            // Если уже есть документ, сначала удаляем его
+            if (haveDocument && freshProjectData?.documents && freshProjectData.documents.length > 0) {
+                // Находим документ по имени файла
+                const existingDoc = freshProjectData.documents.find(doc => doc.fileName === fileName);
+                if (existingDoc) {
+                    console.log('[handleUpload] Deleting existing document before upload:', existingDoc.id, existingDoc.fileName);
+                    try {
+                        await projectRepository.deleteProjectDocument(projectState.projectId, existingDoc.id);
+                        console.log('[handleUpload] Existing document deleted successfully');
+                        setHaveDocument(false);
+                        setFileName(null);
+                        setFileUrl(null);
+                        // Обновляем данные проекта
+                        await refetchProject();
+                    } catch (deleteError) {
+                        console.warn('[handleUpload] Failed to delete existing document:', deleteError);
+                        // Продолжаем загрузку даже если удаление не удалось
+                    }
+                } else {
+                    console.warn('[handleUpload] Document not found in project data, trying to upload anyway');
+                }
+            }
+
             // Используем мутацию загрузки документа проекта
             const documentData: IProjectDocumentDto = await uploadDocumentMutation.mutateAsync({
                 projectId: projectState.projectId,
@@ -317,6 +386,9 @@ const useAnalysisTZPagePresenter = () => {
             });
 
             showAlert('Файл успешно загружен!', EAlertType.SUCCESS);
+            
+            // Сбрасываем статус анализа и перезапускаем polling
+            resetStatus();
 
             // Обновляем состояние с информацией о документе
             setFileName(documentData.fileName);
@@ -356,7 +428,13 @@ const useAnalysisTZPagePresenter = () => {
         projectState.projectId,
         uploadDocumentMutation,
         refetch,
-        closeModal
+        closeModal,
+        haveDocument,
+        projectData,
+        fileName,
+        projectRepository,
+        refetchProject,
+        resetStatus
     ]);
 
 
@@ -423,9 +501,18 @@ const useAnalysisTZPagePresenter = () => {
             return;
         }
 
+        // Сначала обновляем данные проекта, чтобы получить актуальный список документов
+        console.log('[handleReanalyze] Refreshing project data...');
+        await refetchProject();
+        
+        // ВАЖНО: используем свежие данные после refetch, а не старый projectData
+        const freshProjectData = await refetchProject();
+
         // Получаем информацию о документах проекта
         // Backend может возвращать либо document (единственное), либо documents (массив)
-        const documents = projectData?.documents || (projectData?.document ? [projectData.document] : []);
+        const documents = freshProjectData.data?.documents || (freshProjectData.data?.document ? [freshProjectData.data.document] : []);
+        
+        console.log('[handleReanalyze] Documents found:', documents.length);
         
         if (documents.length === 0) {
             showAlert('Нет документа для удаления', EAlertType.WARNING);
@@ -513,7 +600,11 @@ const useAnalysisTZPagePresenter = () => {
         isLoading: isDataLoading || uploadDocumentMutation.isPending,
         uploadError: uploadDocumentMutation.error,
         saveError,
-        documentUploadStatus: uploadDocumentMutation.status
+        documentUploadStatus: uploadDocumentMutation.status,
+        // Polling статусы (вместо SSE)
+        analysisStatus,
+        analysisError,
+        isPolling
     }
 }
 

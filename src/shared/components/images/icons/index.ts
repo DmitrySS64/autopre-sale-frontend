@@ -41,6 +41,7 @@ const ICON_PATH = {
     ALERT_SUCCESS: mdiCheckCircle,
     ALERT_INFO: mdiInformation,
     ALERT_ERROR: mdiAlertCircle,
+    ALERT_CIRCLE: mdiAlertCircle,
     DELETE: mdiDelete,
 } as const
 

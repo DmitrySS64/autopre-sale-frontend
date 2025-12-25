@@ -33,7 +33,9 @@ const AnalysisPage = () => {
         saveChanges,
         allowedFileTypes,
         isLoading,
-        isUploading
+        isUploading,
+        analysisStatus,
+        analysisError
     } = useAnalysisTZPagePresenter()
 
     if (isLoading) {
@@ -63,6 +65,20 @@ const AnalysisPage = () => {
             </div>
         )
 
+    // Определяем текст статуса анализа
+    const getAnalysisStatusText = () => {
+        if (analysisStatus === 'failed') {
+            return <span style={{ color: 'red' }}>Ошибка</span>;
+        }
+        if (analysisStatus === 'completed' || tableData.length > 0) {
+            return <span style={{ color: 'green' }}>Да</span>;
+        }
+        if (isUploading || analysisStatus === 'pending') {
+            return <span style={{ color: 'orange' }}>Анализируется...</span>;
+        }
+        return <span>Нет</span>;
+    };
+
     return (
         <div className={style.main}>
             <StaticTable
@@ -78,7 +94,7 @@ const AnalysisPage = () => {
                             ) : (
                                 <span>{fileName || "Файл не загружен"}</span>
                             ),
-                            "Да"
+                            getAnalysisStatusText()
                         ]
                     }
                 ]}
@@ -108,11 +124,18 @@ const AnalysisPage = () => {
                         </span>
                     </div>
                 )}
-                {isLoading ? (
+                {isLoading || isUploading || analysisStatus === 'pending' ? (
                         <div className={style.emptyBacklog}>
                             <Icon path={ICON_PATH.PROGRESS_ACTIVITY} size={3} spin/>
-                            <h3>Бэклог не сформирован</h3>
-                            <p>После анализа ТЗ здесь появится список работ</p>
+                            <h3>Анализ в процессе...</h3>
+                            <p>Пожалуйста, подождите. Бэклог будет сформирован автоматически</p>
+                        </div>
+                    ) : analysisStatus === 'failed' ? (
+                        <div className={style.emptyBacklog}>
+                            <Icon path={ICON_PATH.ALERT_CIRCLE} size={3} color="red"/>
+                            <h3>Ошибка анализа</h3>
+                            <p>{analysisError || 'Произошла ошибка при анализе документа'}</p>
+                            <Button onClick={handleReanalyze}>Проанализировать снова</Button>
                         </div>
                     ) : tableData.length > 0 ? (
                         <BacklogTable
@@ -120,9 +143,10 @@ const AnalysisPage = () => {
                             onDataChange={updateTableData}/>
                     ) : (
                         <div className={style.emptyBacklog}>
-                        <h3>Нет данных... Возможно произошла ошибка</h3>
-                        <Button onClick={handleReanalyze}>Проанализировать снова</Button>
-                    </div>
+                            <h3>Бэклог не сформирован</h3>
+                            <p>Загрузите документ ТЗ для анализа</p>
+                            <Button onClick={handleReanalyze}>Проанализировать снова</Button>
+                        </div>
                 )}
 
 
