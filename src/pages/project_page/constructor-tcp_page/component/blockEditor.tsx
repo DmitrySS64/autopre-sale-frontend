@@ -12,20 +12,27 @@ interface IBlockEditorProps {
     onSave?: (blockId: string, slideId: string, updates: Partial<IBlockItem>) => void,
     onUpdate?: (blockId: string, slideId: string, fieldName: string, value: string) => void,
     activeSlideId: string | null,
-    onUnsavedChanges?: (hasChanges: boolean) => void,
 }
 
 const BlockEditor = ({
     activeBlock,
     onSave,
-    activeSlideId,
-    onUnsavedChanges
+    activeSlideId
 }: IBlockEditorProps) => {
     const {showAlert} = useAlert();
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(true);
     const [localBlock, setLocalBlock] = useState<IBlockItem | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
+    
+    // Логирование входящих props
+    useEffect(() => {
+        console.log('=== BLOCK EDITOR PROPS ===');
+        console.log('activeBlock:', activeBlock);
+        console.log('activeBlock?.fields:', activeBlock?.fields);
+        console.log('activeBlock?.fields?.length:', activeBlock?.fields?.length);
+        console.log('activeSlideId:', activeSlideId);
+    }, [activeBlock, activeSlideId]);
 
     // Функция валидации всех полей
     const validateFields = useCallback((block: IBlockItem): Record<string, string> => {
@@ -64,21 +71,19 @@ const BlockEditor = ({
         return errors;
     }, []);
 
-    //useEffect(() => {
-    //    if (onUnsavedChanges) {
-    //        onUnsavedChanges(hasUnsavedChanges);
-    //    }
-    //}, [hasUnsavedChanges, onUnsavedChanges]);
-    
     useEffect(() => {
+        console.log('=== SYNCING ACTIVE BLOCK TO LOCAL BLOCK ===');
+        console.log('activeBlock:', activeBlock);
+        
         if(activeBlock){
+            console.log('Setting localBlock to:', activeBlock);
             setLocalBlock({...activeBlock})
             setHasUnsavedChanges(false);
-            if (onUnsavedChanges) {
-                onUnsavedChanges(false);
-            }
+        } else {
+            console.log('No active block, clearing localBlock');
+            setLocalBlock(null);
         }
-    }, [activeBlock, onUnsavedChanges]);
+    }, [activeBlock]);
     
     const handleSave = useCallback(() => {
         if (!localBlock || !activeBlock || !onSave || !activeSlideId) return;
@@ -94,19 +99,16 @@ const BlockEditor = ({
 
         const updates: Partial<IBlockItem> = {
             title: localBlock.title,
-            fields: localBlock.fields?.map(field => ({
+            fields: (localBlock.fields || []).map(field => ({
                 ...field,
             }))
         }
 
         onSave(activeBlock.id, activeSlideId, updates);
         setHasUnsavedChanges(false);
-        if (onUnsavedChanges) {
-            onUnsavedChanges(false);
-        }
         setShowValidationErrors(false);
         showAlert('Изменения сохранены');
-    }, [activeBlock, activeSlideId, localBlock, onSave, onUnsavedChanges, showAlert, validateFields])
+    }, [activeBlock, activeSlideId, localBlock, onSave, showAlert, validateFields])
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -129,9 +131,6 @@ const BlockEditor = ({
 
         setLocalBlock(prev => prev ? {...prev, title: value} : null);
         setHasUnsavedChanges(true);
-        if (onUnsavedChanges) {
-            onUnsavedChanges(true);
-        }
 
         // Если есть поле title в fields, обновляем его тоже
         const titleFieldInFields = localBlock.fields?.find(f => f.name === 'title');
@@ -155,7 +154,7 @@ const BlockEditor = ({
                 return newErrors;
             });
         }
-    }, [localBlock, onUnsavedChanges, validationErrors]);
+    }, [localBlock, validationErrors]);
 
     // Обработчик изменения поля
     const handleFieldChange = useCallback((fieldId: string, value: string) => {
@@ -166,15 +165,12 @@ const BlockEditor = ({
 
             return {
                 ...prev,
-                fields: prev.fields?.map(field =>
+                fields: (prev.fields || []).map(field =>
                     field.id === fieldId ? {...field, value} : field
                 )
             };
         });
         setHasUnsavedChanges(true);
-        if (onUnsavedChanges) {
-            onUnsavedChanges(true);
-        }
 
         // Если есть поле с именем "title", обновляем и заголовок блока
         const changedField = localBlock.fields.find(f => f.id === fieldId);
@@ -186,7 +182,7 @@ const BlockEditor = ({
             setTimeout(() => {
                 const errors = validateFields({
                     ...localBlock,
-                    fields: localBlock.fields?.map(f =>
+                    fields: (localBlock.fields || []).map(f =>
                         f.id === fieldId ? {...f, value} : f
                     )
                 });
@@ -202,7 +198,7 @@ const BlockEditor = ({
                 return newErrors;
             });
         }
-    }, [localBlock, onUnsavedChanges, showValidationErrors, validationErrors, handleTitleChange, validateFields]);
+    }, [localBlock, showValidationErrors, validationErrors, handleTitleChange, validateFields]);
 
     const titleField = useMemo(() => {
         if (!localBlock?.fields) return null;
@@ -215,7 +211,7 @@ const BlockEditor = ({
         <>
             <div className={'inline-flex flex-col gap-2 items-center'}>
                 <h2>
-                    Блок "{activeBlock.title}"
+                    Свойства блока: "{activeBlock.title}"
                 </h2>
                 {hasUnsavedChanges && (
                     <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded w-fit cursor-pointer" onClick={handleSave}>
@@ -240,6 +236,14 @@ const BlockEditor = ({
 
             <div className={style.scrollList}>
                 <div className={'flex flex-col gap-5 px-1 pt-2 pb-10'}>
+                    {(() => {
+                        console.log('=== RENDERING FIELDS ===');
+                        console.log('localBlock:', localBlock);
+                        console.log('localBlock?.fields:', localBlock?.fields);
+                        console.log('titleField:', titleField);
+                        console.log('Has fields?', localBlock?.fields && localBlock.fields.length > 0);
+                        return null;
+                    })()}
                     {titleField ? (
                         <div className="w-full">
                             <Label>
@@ -265,58 +269,61 @@ const BlockEditor = ({
                         </div>
                     )}
 
-                    { localBlock.fields && localBlock.fields.length > 0 ? localBlock.fields
-                        .filter(field => field.name != 'title')
-                        .map((field, index) => {
-                            const isError = !!validationErrors[field.id];
-                            return (
-                            <div key={index} className={'flex flex-col gap-2'}>
-                                <Label>
-                                    {field.label}
-                                    {field.required && (<span className={'text-red-600'}>*</span>)}
-                                </Label>
-                                {field.type === 'text' ? (
-                                    <Input
-                                        value={field.value || ''}
-                                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                                        placeholder={field.placeholder || field.label}
-                                        required={field.required}
-                                    />
-                                ) : field.type === 'textarea' ? (
-                                    <Textarea
-                                        value={field.value || ''}
-                                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                                        placeholder={field.placeholder || field.label}
-                                        fitContent
-                                        className={'max-h-50'}
-                                        required={field.required}
-                                    />
-                                ) : field.type === 'number' ? (
-                                    <Input
-                                        type={'number'}
-                                        value={field.value || ''}
-                                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                                        placeholder={field.placeholder || field.label}
-                                        required={field.required}
-                                    />
-                                ) : (
-                                    <Input
-                                        value={field.value || ''}
-                                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                                        placeholder={field.placeholder || field.label}
-                                        required={field.required}
-                                    />
-                                )}
-                                {isError && (
-                                    <div className="text-xs text-red-600 mt-1">
-                                        {validationErrors[field.id]}
+                    {localBlock.fields && localBlock.fields.length > 0 ? (
+                        localBlock.fields
+                            .filter(field => field.name !== 'title')
+                            .map((field, index) => {
+                                console.log('Rendering field:', field);
+                                const isError = !!validationErrors[field.id];
+                                return (
+                                    <div key={index} className={'flex flex-col gap-2'}>
+                                        <Label>
+                                            {field.label}
+                                            {field.required && (<span className={'text-red-600'}>*</span>)}
+                                        </Label>
+                                        {field.type === 'text' ? (
+                                            <Input
+                                                value={field.value || ''}
+                                                onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                                                placeholder={field.placeholder || field.label}
+                                                required={field.required}
+                                            />
+                                        ) : field.type === 'textarea' ? (
+                                            <Textarea
+                                                value={field.value || ''}
+                                                onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                                                placeholder={field.placeholder || field.label}
+                                                fitContent
+                                                className={'max-h-50'}
+                                                required={field.required}
+                                            />
+                                        ) : field.type === 'number' ? (
+                                            <Input
+                                                type={'number'}
+                                                value={field.value || ''}
+                                                onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                                                placeholder={field.placeholder || field.label}
+                                                required={field.required}
+                                            />
+                                        ) : (
+                                            <Input
+                                                value={field.value || ''}
+                                                onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                                                placeholder={field.placeholder || field.label}
+                                                required={field.required}
+                                            />
+                                        )}
+                                        {isError && (
+                                            <div className="text-xs text-red-600 mt-1">
+                                                {validationErrors[field.id]}
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        )}
+                                );
+                            })
                     ) : (
                         <p>
-                            Нет блоков
+                            Нет полей для заполнения
                         </p>
                     )}
                 </div>

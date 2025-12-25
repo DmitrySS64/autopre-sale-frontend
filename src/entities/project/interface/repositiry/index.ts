@@ -8,4 +8,5 @@ export interface IProjectRepository {
     editProject(project: IEditProjectPort): Promise<IProjectDto>,
     deleteProject(projectId: string): Promise<void>,
     uploadProjectDocument(projectId: string, file: File): Promise<IProjectDocumentDto>,
+    deleteProjectDocument(projectId: string, documentId: string): Promise<void>,
 }

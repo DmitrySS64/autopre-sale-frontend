@@ -21,6 +21,7 @@ interface IStaticTableRow {
 }
 
 interface ITableRowProps {
+    id?: string;
     rowIndex?: number;
     workNumber: string;
     canOpen?: boolean;

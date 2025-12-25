@@ -15,10 +15,12 @@ import {EAlertType} from "@shared/enum/alert";
 import {useUnsavedChanges} from "@shared/routes/hooks/useUnsavedChanges";
 import {useRouteBlocker} from "@shared/routes/hooks/useRouteBlocker";
 import {useProjectContext} from "@entities/project/api/useContext";
-import {useUploadProjectDocumentMutation} from "@entities/project/api/query";
+import {useUploadProjectDocumentMutation, useProjectQuery} from "@entities/project/api/query";
 import type {IProjectDocumentDto} from "@entities/project/interface/dto";
 import Icon from "@mdi/react";
 import {ICON_PATH} from "@shared/components/images/icons";
+import {ProjectRepository} from "@entities/project/api/projectRepository";
+import {HTTP_APP_SERVICE} from "@shared/services/http/HttpAppService";
 
 
 const ALLOWED_FILE_TYPES = ['.doc', '.docx', '.pdf'];
@@ -40,6 +42,11 @@ const useAnalysisTZPagePresenter = () => {
         enabled: !!projectState.projectId
     })
     const {
+        data: projectData,
+        refetch: refetchProject
+    } = useProjectQuery(projectState.projectId)
+    
+    const {
         saveBacklog,
         downloadBacklog,
         isSaving,
@@ -47,6 +54,7 @@ const useAnalysisTZPagePresenter = () => {
     } = useAnalysisPageMutation()
 
     const uploadDocumentMutation  = useUploadProjectDocumentMutation()
+    const projectRepository = new ProjectRepository(HTTP_APP_SERVICE)
 
     const {showContextMenu} = useContextMenu()
     const {showModal, closeModal} = useModal()
@@ -73,6 +81,7 @@ const useAnalysisTZPagePresenter = () => {
 
     const tableRowToDto = useCallback((row: ITableRowProps): ITableRowPropsDto => {
         return {
+            id: row.id,
             workNumber: row.workNumber,
             level: row.level,
             rowValues: row.rowValues as ITableFieldPropsDto[],
@@ -82,6 +91,7 @@ const useAnalysisTZPagePresenter = () => {
 
     const dtoToTableRow = useCallback((dto: ITableRowPropsDto, index: number = 0): ITableRowProps => {
         return {
+            id: dto.id,
             rowIndex: index,
             workNumber: dto.workNumber,
             level: dto.level,
@@ -406,6 +416,84 @@ const useAnalysisTZPagePresenter = () => {
     useRouteBlocker(hasChanges)
 
 
+    // Обработчик для кнопки "Проанализировать снова"
+    const handleReanalyze = useCallback(async () => {
+        if (!projectState.projectId) {
+            showAlert('ID проекта не найден', EAlertType.ERROR);
+            return;
+        }
+
+        // Получаем информацию о документах проекта
+        // Backend может возвращать либо document (единственное), либо documents (массив)
+        const documents = projectData?.documents || (projectData?.document ? [projectData.document] : []);
+        
+        if (documents.length === 0) {
+            showAlert('Нет документа для удаления', EAlertType.WARNING);
+            // Открываем file picker сразу
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = ALLOWED_FILE_TYPES.join(',');
+            input.onchange = (e: Event) => {
+                const target = e.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                    const syntheticEvent = {
+                        preventDefault: () => {},
+                        target: {
+                            files: target.files
+                        }
+                    } as unknown as ChangeEvent<HTMLInputElement>;
+                    handleUpload(syntheticEvent);
+                }
+            };
+            input.click();
+            return;
+        }
+
+        const modalId = showModal({
+            canClose: false,
+            content: <>Удаление старого документа...</>
+        });
+
+        try {
+            const documentId = documents[0].id;
+            
+            // Удаляем старый документ
+            await projectRepository.deleteProjectDocument(projectState.projectId, documentId);
+            
+            // Обновляем данные проекта и ждем завершения
+            await refetchProject();
+            
+            // Дополнительная небольшая задержка для синхронизации с бэкендом
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            closeModal(modalId);
+            showAlert('Старый документ удален. Выберите новый файл для анализа', EAlertType.INFO);
+            
+            // Открываем file picker для загрузки нового файла
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = ALLOWED_FILE_TYPES.join(',');
+            input.onchange = (e: Event) => {
+                const target = e.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                    const syntheticEvent = {
+                        preventDefault: () => {},
+                        target: {
+                            files: target.files
+                        }
+                    } as unknown as ChangeEvent<HTMLInputElement>;
+                    handleUpload(syntheticEvent);
+                }
+            };
+            input.click();
+            
+        } catch (error) {
+            closeModal(modalId);
+            console.error('Error deleting document:', error);
+            showAlert('Ошибка при удалении документа', EAlertType.ERROR);
+        }
+    }, [projectState.projectId, projectData, handleUpload, showAlert, showModal, closeModal, projectRepository, refetchProject]);
+
     return {
         haveDoc: haveDocument,
         fileName,
@@ -416,6 +504,7 @@ const useAnalysisTZPagePresenter = () => {
         downloadHandle,
         deleteRowHandle,
         handleUpload,
+        handleReanalyze,
         hasChanges,
         isSaving: isSaving || isProcessing,
         isUploading: uploadDocumentMutation.isPending,

@@ -22,6 +22,7 @@ const workDtoToTableRowDto = (work: IWorkDto): ITableRowPropsDto => {
     ];
 
     return {
+        id: work.id, // Сохраняем ID для последующего обновления
         workNumber: work.workNumber,
         level: levelMap[work.level] || '1',
         rowValues,
@@ -29,34 +30,48 @@ const workDtoToTableRowDto = (work: IWorkDto): ITableRowPropsDto => {
     };
 };
 
+// Проверка валидности ID
+const isValidId = (id?: string): boolean => {
+    return !!id && id.trim() !== '' && id !== '00000000-0000-0000-0000-000000000000';
+};
+
 // Конвертация из ITableRowPropsDto (клиент) в WorkDto (API)
-const tableRowDtoToWorkDto = (row: ITableRowPropsDto, parentLevel: number = 0): IWorkDto => {
+const tableRowDtoToWorkDto = (row: ITableRowPropsDto, parentLevel: number = 0): IWorkDto | null => {
     const levelMap: Record<string, number> = {
         '1': 1,
         '2': 2,
         '3': 3
     };
 
+    // Если ID невалидный, это новая запись - не конвертируем её
+    if (!isValidId(row.id)) {
+        return null;
+    }
+
     // Извлекаем данные из ячеек таблицы
-    // Предполагаем, что ячейки расположены в определенном порядке
     const workNumber = row.workNumber || '';
-    const workType = row.rowValues?.[1]?.value || '';
-    const acceptanceCriteria = row.rowValues?.[2]?.value || '';
+    const workType = row.rowValues?.[0]?.value || '';
+    const acceptanceCriteria = row.rowValues?.[1]?.value || '';
+    
+    // Рекурсивно обрабатываем дочерние работы, фильтруя невалидные
+    const validChildren = row.children
+        ?.map(child => tableRowDtoToWorkDto(child, levelMap[row.level || '1']))
+        .filter((child): child is IWorkDto => child !== null); // Убираем null значения
 
     return {
-        id: '', // ID будет генерироваться на сервере
+        id: row.id!,
         workNumber,
         level: levelMap[row.level || '1'] || parentLevel + 1,
         workType,
         acceptanceCriteria,
-        childWorks: row.children?.map(child => tableRowDtoToWorkDto(child, levelMap[row.level || '1']))
+        childWorks: validChildren && validChildren.length > 0 ? validChildren : undefined
     };
 };
 
 // Конвертация для импорта (специфичный формат для ImportBacklogDto)
 const tableRowDtoToWorkImportItem = (row: ITableRowPropsDto): IWorkImportItem => {
-    const type = row.rowValues?.[1]?.value || '';
-    const acceptanceCriteria = row.rowValues?.[2]?.value || '';
+    const type = row.rowValues?.[0]?.value || '';
+    const acceptanceCriteria = row.rowValues?.[1]?.value || '';
 
     return {
         work_number: row.workNumber,
@@ -71,7 +86,10 @@ const workDtosToTableRowDtos = (works: IWorkDto[]): ITableRowPropsDto[] => {
 };
 
 const tableRowDtosToWorkDtos = (rows: ITableRowPropsDto[]): IWorkDto[] => {
-    return rows.map(row => tableRowDtoToWorkDto(row));
+    // Конвертируем и фильтруем только записи с валидными ID
+    return rows
+        .map(row => tableRowDtoToWorkDto(row))
+        .filter((work): work is IWorkDto => work !== null); // Убираем null значения
 };
 
 const tableRowDtosToWorkImportItems = (rows: ITableRowPropsDto[]): IWorkImportItem[] => {

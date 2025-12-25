@@ -9,28 +9,42 @@ interface IFieldDto {
 
 interface IPresentationDto {
     id: string;
+    projectId: string;
     name: string;
+    status: 'Draft' | 'Generated';
+    fileUrl?: string;
     createdAt: string;
+    updatedAt: string;
+    slides?: ISlideDto[];
 }
 
 interface ISlideDto {
     id: string;
     presentationId: string;
-    order: number;
-    blocks: IBlockDto[];
+    orderIndex: number;
+    createdAt: string;
+    blocks?: IBlockDto[]; // Может быть undefined при создании нового слайда
 }
 
 interface IBlockDto {
     id: string;
     slideId: string;
-    type: string;
-    key: string;
-    value: Record<string, unknown>;
-    position: { x: number; y: number };
-    size: { w: number; h: number };
+    templateBlockId: string;
+    positionIndex?: number; // Может быть undefined
+    createdAt: string;
+    values?: IBlockValueDto[]; // Может быть пустым массивом или undefined
+}
+
+interface IBlockValueDto {
+    id: string;
+    slideBlockId: string;
+    fieldKey: string;
+    value: any; // JSON value
+    updatedAt: string;
 }
 
 interface IGenerateResultDto {
+    presentationId: string;
     fileUrl: string;
 }
 
@@ -60,6 +74,7 @@ export type {
     IPresentationDto,
     ISlideDto,
     IBlockDto,
+    IBlockValueDto,
     IGenerateResultDto,
     ICreatePresentationError,
     IModifySlideError,

@@ -8,11 +8,11 @@ import type {
 import type {
     ICreateTemplateResponse, IGetTemplateByIdError, IGetTemplateResponse, IGetTemplatesResponse
 } from "@entities/block_template/interface/index.response.ts";
-import type {ITemplateDto, ITemplateFields} from "@entities/block_template/interface/index.dto.ts";
+import type {ITemplateDto} from "@entities/block_template/interface/index.dto.ts";
 
 
 class TemplateRepository  extends BaseRepository implements ITemplateRepository {
-    // Создание шаблона
+    // Создание шаблона (загрузка PPTX)
     public async createTemplate(port: ICreateTemplatePort): Promise<ICreateTemplateResponse> {
         if (isStub) {
             await new Promise(resolve => setTimeout(resolve, 1500));
@@ -22,11 +22,12 @@ class TemplateRepository  extends BaseRepository implements ITemplateRepository 
                 code: port.code,
                 name: port.name,
                 description: port.description,
-                version: port.version || 1,
-                fields: port.fields as ITemplateFields,
-                fileUrl: `/api/templates/files/${port.code}.pptx`,
+                category: port.category,
+                pptxFileUrl: `/api/templates/files/${port.code}.pptx`,
                 previewUrl: `/api/templates/previews/${port.code}.png`,
-                createdAt: new Date().toISOString()
+                fields: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
 
             STUB_TEMPLATES.push(newTemplate);
@@ -34,8 +35,7 @@ class TemplateRepository  extends BaseRepository implements ITemplateRepository 
             return { template: newTemplate };
         }
 
-        //const formData = port.toFormData();
-
+        // Upload PPTX file with multipart/form-data
         return await this._httpService.post<ICreateTemplateResponse>('/api/Templates', {
             body: port,
             headers: {
@@ -62,7 +62,17 @@ class TemplateRepository  extends BaseRepository implements ITemplateRepository 
             return { template };
         }
 
-        return await this._httpService.get<IGetTemplateResponse>(`/api/Templates/${port.id}`);
+        console.log('Fetching template by ID:', port.id);
+        const response = await this._httpService.get<any>(`/api/Templates/${port.id}`);
+        console.log('Template raw response:', response);
+        
+        // Если backend возвращает template напрямую (не обернутый), оборачиваем
+        if (response && !response.template && response.id) {
+            console.log('Response is template object directly, wrapping it');
+            return { template: response };
+        }
+        
+        return response as IGetTemplateResponse;
     }
 
     // Получение всех шаблонов с фильтрацией
@@ -75,9 +85,23 @@ class TemplateRepository  extends BaseRepository implements ITemplateRepository 
             };
         }
 
-        //const queryParams = port?.toQueryParams() || {};
-
-        return await this._httpService.get<IGetTemplatesResponse>('/api/Templates');
+        console.log('Fetching templates from /api/Templates...');
+        
+        try {
+            const response = await this._httpService.get<IGetTemplatesResponse>('/api/Templates');
+            console.log('Templates raw response:', response);
+            
+            // Проверяем формат ответа
+            if (Array.isArray(response)) {
+                console.log('Response is array, wrapping in object');
+                return { templates: response as any };
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('Error fetching templates:', error);
+            throw error;
+        }
     }
 }
 

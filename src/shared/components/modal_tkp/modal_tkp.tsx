@@ -5,6 +5,8 @@ export const ModalTkp = ({ isOpen, onClose, children }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    console.log('ModalTkp state changed:', { isOpen, isVisible });
+    
     if (isOpen) {
       setIsVisible(true);
       document.body.style.overflow = 'hidden';
@@ -16,7 +18,7 @@ export const ModalTkp = ({ isOpen, onClose, children }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, isVisible]);
 
   const handleClose = () => {
     setIsVisible(false);

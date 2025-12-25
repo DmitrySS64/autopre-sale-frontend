@@ -1,10 +1,10 @@
 interface ITemplateField {
-    type: 'text' | 'list' | 'textarea' | 'number' | 'select' | 'checkbox';
-    placeholderName: string;
-    label?: string;
-    required?: boolean;
-    defaultValue?: string | number | boolean;
-    options?: Array<{ label: string; value: string }>;
+    key: string;
+    type: string;
+    required: boolean;
+    placeholder: string;
+    orderIndex: number;
+    metadata: Record<string, any>;
 }
 
 interface ITemplateFields {
@@ -16,11 +16,12 @@ interface ITemplateDto {
     code: string;
     name: string;
     description?: string;
-    version: number;
-    fields: ITemplateFields;
-    fileUrl: string;
+    category?: string;
+    pptxFileUrl: string;
     previewUrl?: string;
+    fields: ITemplateField[];
     createdAt: string;
+    updatedAt: string;
 }
 
 export type {

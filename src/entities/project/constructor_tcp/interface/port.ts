@@ -1,29 +1,21 @@
 interface ICreatePresentationPort {
+    projectId: string;
     name: string;
-    description?: string;
 }
 
 interface ICreateSlidePort {
-    slideId?: string;
+    // No additional parameters needed for backend
 }
 
 interface IModifySlidePort {
-    action: 'add_block' | 'remove_block' | 'add_block_from_template';
-    block?: {
-        type: string;
-        key: string;
-        value?: Record<string, unknown>;
-        position: { x: number; y: number };
-        size: { w: number; h: number };
-    };
-    blockId?: string;
-    templateBlockId?: string;
+    addBlocks?: Array<{
+        templateBlockId: string;
+    }>;
+    removeBlocks?: string[]; // Array of block IDs to remove
 }
 
 interface IUpdateBlockPort {
-    value?: Record<string, unknown>;
-    position?: { x: number; y: number };
-    size?: { w: number; h: number };
+    values: Record<string, any>; // Map of fieldKey to value
 }
 
 export type {
