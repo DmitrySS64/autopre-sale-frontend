@@ -29,6 +29,10 @@ const useAuthFormPresenter = () => {
 
     const form = useAppForm({
         validators: {onBlur: authPageSchema},
+        defaultValues: {
+            email: '',
+            password: '',
+        },
         onSubmit: handleSubmit
     })
 

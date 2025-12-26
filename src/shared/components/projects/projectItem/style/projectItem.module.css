@@ -26,6 +26,9 @@
         width: fit-content;
         color: var(--color-text-dark);
         white-space: nowrap;
+        max-width: 50px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     p {

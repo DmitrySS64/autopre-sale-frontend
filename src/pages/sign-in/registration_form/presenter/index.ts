@@ -34,6 +34,14 @@ const useRegistrationFormPresenter = () => {
 
     const form = useAppForm({
         validators: {onBlur: registrationSchema},
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            middleName: '',
+            email: '',
+            password: '',
+            confirmPassword:'',
+        },
         onSubmit: handleSubmit
     })
 
