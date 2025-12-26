@@ -92,7 +92,26 @@ const convertBlockItemToUpdateRequest = (block: IBlockItem): IUpdateBlockPort =>
 
     if (block.fields) {
         block.fields.forEach(field => {
-            values[field.name] = field.value;
+            // Извлекаем чистое значение
+            let cleanValue = field.value || '';
+            
+            // Если значение это JSON строка с полем "value", парсим её
+            if (typeof cleanValue === 'string' && cleanValue.startsWith('{') && cleanValue.includes('"value"')) {
+                try {
+                    const parsed = JSON.parse(cleanValue);
+                    cleanValue = parsed.value || '';
+                } catch (e) {
+                    // Если не удалось распарсить, оставляем как есть
+                    console.warn('Failed to parse field value:', cleanValue, e);
+                }
+            }
+            
+            // Убираем префикс "value:" если есть
+            if (typeof cleanValue === 'string' && cleanValue.startsWith('value:')) {
+                cleanValue = cleanValue.substring(6).trim();
+            }
+            
+            values[field.name] = cleanValue;
         });
     }
 
@@ -210,22 +229,31 @@ const useConstructorPagePresenter = () => {
                 console.log('Presentation created:', newPresentation);
                 setPresentationId(newPresentation.id);
                 
-                // Создаем первый пустой слайд автоматически
-                // Небольшая задержка, чтобы presentationId успел сохраниться
-                setTimeout(() => {
-                    apiCreateSlide({
-                        slideId: undefined,
-                    }, {
-                        onSuccess: () => {
-                            console.log('First slide created automatically');
-                            showAlert('Создана новая презентация с первым слайдом', EAlertType.SUCCESS);
-                        },
-                        onError: (error) => {
-                            console.error('Failed to create first slide:', error);
-                            showAlert('Презентация создана, но не удалось создать первый слайд', EAlertType.WARNING);
-                        }
-                    });
-                }, 100);
+                // Проверяем, есть ли уже слайды в созданной презентации
+                const hasSlides = newPresentation.slides && newPresentation.slides.length > 0;
+                console.log('Presentation has slides:', hasSlides, 'count:', newPresentation.slides?.length);
+                
+                if (!hasSlides) {
+                    // Создаем первый пустой слайд только если его нет
+                    // Небольшая задержка, чтобы presentationId успел сохраниться
+                    setTimeout(() => {
+                        apiCreateSlide({
+                            slideId: undefined,
+                        }, {
+                            onSuccess: () => {
+                                console.log('First slide created automatically');
+                                showAlert('Создана новая презентация с первым слайдом', EAlertType.SUCCESS);
+                            },
+                            onError: (error) => {
+                                console.error('Failed to create first slide:', error);
+                                showAlert('Презентация создана, но не удалось создать первый слайд', EAlertType.WARNING);
+                            }
+                        });
+                    }, 100);
+                } else {
+                    console.log('Presentation already has slides, skipping automatic slide creation');
+                    showAlert('Создана новая презентация', EAlertType.SUCCESS);
+                }
             }).catch((error) => {
                 console.error('Failed to create presentation:', error);
                 showAlert('Ошибка создания презентации', EAlertType.ERROR);

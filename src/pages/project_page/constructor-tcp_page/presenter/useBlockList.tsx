@@ -96,16 +96,37 @@ const useBlockList = ({
         if (!templateFields || !Array.isArray(templateFields)) {
             return [];
         }
-        return templateFields.map((templateField, index) => ({
-            id: `${templateId}-${templateField.key}-${index}`,
-            name: templateField.key,
-            label: templateField.key.charAt(0).toUpperCase() + templateField.key.slice(1),
-            type: templateField.type as any, // Convert to compatible type
-            required: templateField.required || false,
-            value: '',
-            placeholder: templateField.placeholder,
-            options: undefined
-        }));
+        return templateFields.map((templateField) => {
+            // Извлекаем label из metadata (это тип поля: title, subtitle, text, list)
+            const labelType = templateField.metadata?.label || templateField.type;
+            
+            // Формируем читаемое название: "About Project (title)" или "Project Description (subtitle)"
+            const readableLabel = templateField.key
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            
+            // Добавляем тип в скобках, если он не "text"
+            const displayLabel = labelType && labelType !== 'text' 
+                ? `${readableLabel} (${labelType})`
+                : readableLabel;
+            
+            // Формируем уникальный ID
+            // Используем комбинацию: templateId + key + labelType
+            // Это гарантирует уникальность даже если placeholder одинаковые
+            const uniqueId = `${templateId}-${templateField.key}-${labelType}`;
+            
+            return {
+                id: uniqueId,
+                name: templateField.key,
+                label: displayLabel,
+                type: templateField.type as any, // UI type (text, textarea, number и т.д.)
+                required: templateField.required || false,
+                value: '',
+                placeholder: templateField.placeholder,
+                options: undefined
+            };
+        });
     }, []);
 
     const createBlockFromTemplate = useCallback((template: ITemplateDto): IBlockItem => {

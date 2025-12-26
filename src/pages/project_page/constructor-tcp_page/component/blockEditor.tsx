@@ -244,30 +244,6 @@ const BlockEditor = ({
                         console.log('Has fields?', localBlock?.fields && localBlock.fields.length > 0);
                         return null;
                     })()}
-                    {titleField ? (
-                        <div className="w-full">
-                            <Label>
-                                {titleField.label}
-                                {titleField.required && (<span className={'text-red-600'}>*</span>)}
-                            </Label>
-                            <Input
-                                value={localBlock.title}
-                                onChange={(e) => handleTitleChange(e.target.value)}
-                                placeholder={titleField.placeholder || titleField.label}
-                                className="w-full"
-                            />
-                        </div>
-                    ) : (
-                        <div className="w-full">
-                            <Label>Название блока</Label>
-                            <Input
-                                value={localBlock.title}
-                                onChange={(e) => handleTitleChange(e.target.value)}
-                                placeholder="Введите название блока"
-                                className="w-full"
-                            />
-                        </div>
-                    )}
 
                     {localBlock.fields && localBlock.fields.length > 0 ? (
                         localBlock.fields
@@ -275,6 +251,29 @@ const BlockEditor = ({
                             .map((field, index) => {
                                 console.log('Rendering field:', field);
                                 const isError = !!validationErrors[field.id];
+                                
+                                // Извлекаем чистое значение (убираем "value:" если есть)
+                                const cleanValue = (value: string | undefined): string => {
+                                    if (!value) return '';
+                                    
+                                    // Если значение это JSON строка с полем "value", парсим её
+                                    if (typeof value === 'string' && value.startsWith('{') && value.includes('"value"')) {
+                                        try {
+                                            const parsed = JSON.parse(value);
+                                            return parsed.value || '';
+                                        } catch (e) {
+                                            // Если не удалось распарсить, продолжаем обработку
+                                        }
+                                    }
+                                    
+                                    // Если значение начинается с "value:", убираем этот префикс
+                                    if (typeof value === 'string' && value.startsWith('value:')) {
+                                        return value.substring(6).trim();
+                                    }
+                                    
+                                    return value;
+                                };
+                                
                                 return (
                                     <div key={index} className={'flex flex-col gap-2'}>
                                         <Label>
@@ -283,14 +282,14 @@ const BlockEditor = ({
                                         </Label>
                                         {field.type === 'text' ? (
                                             <Input
-                                                value={field.value || ''}
+                                                value={cleanValue(field.value)}
                                                 onChange={(e) => handleFieldChange(field.id, e.target.value)}
                                                 placeholder={field.placeholder || field.label}
                                                 required={field.required}
                                             />
                                         ) : field.type === 'textarea' ? (
                                             <Textarea
-                                                value={field.value || ''}
+                                                value={cleanValue(field.value)}
                                                 onChange={(e) => handleFieldChange(field.id, e.target.value)}
                                                 placeholder={field.placeholder || field.label}
                                                 fitContent
@@ -300,14 +299,14 @@ const BlockEditor = ({
                                         ) : field.type === 'number' ? (
                                             <Input
                                                 type={'number'}
-                                                value={field.value || ''}
+                                                value={cleanValue(field.value)}
                                                 onChange={(e) => handleFieldChange(field.id, e.target.value)}
                                                 placeholder={field.placeholder || field.label}
                                                 required={field.required}
                                             />
                                         ) : (
                                             <Input
-                                                value={field.value || ''}
+                                                value={cleanValue(field.value)}
                                                 onChange={(e) => handleFieldChange(field.id, e.target.value)}
                                                 placeholder={field.placeholder || field.label}
                                                 required={field.required}
